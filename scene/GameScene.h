@@ -71,6 +71,8 @@ class GameScene {
 	//ライン描画色
 	Vector4 colorZ;
 
+
+
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>

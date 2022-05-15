@@ -11,6 +11,8 @@
 #include "WorldTransform.h"
 #include "DebugCamera.h"
 
+#include "Matrix.h"
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -71,6 +73,8 @@ class GameScene {
 	//ライン描画色
 	Vector4 colorZ;
 
+	//ワールド変換行列
+	Matrix matrix;
 
 
 	/// <summary>

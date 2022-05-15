@@ -7,14 +7,6 @@
 
 #define XM_PI 3.141592
 
-void UnitMatrix(Matrix4 m);
-
-void ScaleChange(WorldTransform worldTransform, float m1, float m2, float m3, float m4);
-
-void RotaChange(WorldTransform worldTransform, float m1, float m2, float m3);
-
-void ChangeTranslation(WorldTransform worldTransform, float tx, float ty, float tz);
-
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {
@@ -60,11 +52,13 @@ void GameScene::Initialize() {
 	colorZ = { 0,0,255,1 };
 #pragma endregion
 	//スケールチェンジ初期化
-	ScaleChange(worldTransform_, 1.0f, 1.0f, 1.0f, 1.0f);
+	matrix.ScaleChange(worldTransform_, 1.0f, 2.0f, 1.0f, 1.0f);
 	//回転初期化
-	RotaChange(worldTransform_, XM_PI / 4.0f, XM_PI / 4.0f, XM_PI / 4.0f);
+	matrix.RotaChange(worldTransform_, XM_PI / 1.0f, XM_PI / 1.0f, XM_PI / 4.0f);
 	//平行移動
-	ChangeTranslation(worldTransform_, 5.0f, 0.0f, 5.0f);
+	matrix.ChangeTranslation(worldTransform_, 5.0f, 10.0f, 5.0f);
+
+	matrix.UpdataMatrix(worldTransform_);
 }
 
 void GameScene::Update() {
@@ -130,94 +124,3 @@ void GameScene::Draw() {
 #pragma endregion
 }
 
-
-//単位ベクトル
-void UnitMatrix(Matrix4 m) {
-	Matrix4 unitMatrix;
-
-	unitMatrix.m[0][0] = 1.0f;
-	unitMatrix.m[1][1] = 1.0f;
-	unitMatrix.m[2][2] = 1.0f;
-	unitMatrix.m[3][3] = 1.0f;
-
-	m = unitMatrix;
-}
-//スケーリングチェンジ
-void ScaleChange(WorldTransform worldTransform, float m1, float m2, float m3, float m4) {
-	//X,Y,Z方向のスケーリングを設定
-	worldTransform.scale_ = { m1,m2,m3 };
-	//スケーリング行列を宣言
-	Matrix4 matScale;
-
-	matScale.m[0][0] = worldTransform.scale_.x;
-	matScale.m[1][1] = worldTransform.scale_.y;
-	matScale.m[2][2] = worldTransform.scale_.z;
-	matScale.m[3][3] = m4;
-
-	UnitMatrix(worldTransform.matWorld_);
-	worldTransform.matWorld_ *= matScale;
-
-	//行列の転送
-	worldTransform.TransferMatrix();
-}
-//回転
-void RotaChange(WorldTransform worldTransform, float m1, float m2, float m3) {
-	//X、Y、Z軸周りの回転角を設定
-	worldTransform.rotation_ = {m1,m2,m3 };
-
-	//合成用回転行列を宣言
-	Matrix4 matRot;
-	//X軸回転行列を宣言
-	Matrix4 matRotX, matRotY,matRotZ;
-
-	matRotX.m[0][0] = 1;
-	matRotX.m[1][1] = cos(worldTransform.rotation_.x);
-	matRotX.m[1][2] = sin(worldTransform.rotation_.x);
-	matRotX.m[2][1] = -sin(worldTransform.rotation_.x);
-	matRotX.m[2][2] = cos(worldTransform.rotation_.x);
-	matRotX.m[3][3] = 1;
-
-	matRotY.m[0][0] = cos(worldTransform.rotation_.y);
-	matRotY.m[0][2] = -sin(worldTransform.rotation_.y);
-	matRotY.m[1][1] = 1;
-	matRotY.m[2][0] = sin(worldTransform.rotation_.y);
-	matRotY.m[2][2] = cos(worldTransform.rotation_.y);
-	matRotY.m[3][3] = 1;
-
-	matRotZ.m[0][0] = cos(worldTransform.rotation_.z);
-	matRotZ.m[0][1] = sin(worldTransform.rotation_.z);
-	matRotZ.m[1][0] = -sin(worldTransform.rotation_.z);
-	matRotZ.m[1][1] = cos(worldTransform.rotation_.z);
-	matRotZ.m[2][2] = 1;
-	matRotZ.m[3][3] = 1;
-
-	//各軸の回転行列を合成
-	matRot = matRotZ;
-	matRot *= matRotX;
-	matRot *= matRotY;
-
-	UnitMatrix(worldTransform.matWorld_);
-	worldTransform.matWorld_ *= matRot;
-	//行列の転送
-	worldTransform.TransferMatrix();
-
-	
-}
-
-void ChangeTranslation(WorldTransform worldTransform, float tx, float ty, float tz)
-{
-	//Ｘ，Ｙ，Ｚ軸周りの平行移動を設定
-	worldTransform.translation_ = { tx,ty,tz };
-	//平行移動行列を宣言
-	Matrix4 matTrans = MathUtility::Matrix4Identity();
-
-	matTrans.m[3][0] = worldTransform.translation_.x;
-	matTrans.m[3][1] = worldTransform.translation_.y;
-	matTrans.m[3][2] = worldTransform.translation_.z;
-
-	UnitMatrix(worldTransform.matWorld_);
-	worldTransform.matWorld_ *= matTrans;
-
-	//行列の転送
-	worldTransform.TransferMatrix();
-}

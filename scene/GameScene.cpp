@@ -29,7 +29,7 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//カメラ視点座標を設定
-	//viewProjection_.eye = { 0,0,-5 };
+	viewProjection_.eye = { 0,20,-25 };
 	////カメラの注視点座標を設定
 	//viewProjection_.target = { 10,0,0 };
 	////カメラ上方向ベクトルを設定（右上45度指定）
@@ -41,10 +41,10 @@ void GameScene::Initialize() {
 	////アスペクト比を設定
 	//viewProjection_.aspectRatio = 1.0f;
 
-	//ニアクリップ距離を設定->手前
-	viewProjection_.nearZ = 52.0f;
-	//ファークリップ距離を設定->奥
-	viewProjection_.farZ = 53.0f;
+	////ニアクリップ距離を設定->手前
+	//viewProjection_.nearZ = 52.0f;
+	////ファークリップ距離を設定->奥
+	//viewProjection_.farZ = 53.0f;
 	
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
@@ -76,34 +76,43 @@ void GameScene::Initialize() {
 	//メルセンヌ・ツイスターの乱数エンジン
 	std::mt19937_64 engine(seed_gen());
 	//ワールドトランスフォームの初期化
-	for (WorldTransform& worldTransform : worldTransforms_) {
-		//ワールドトランスフォームの初期化
-		worldTransform.Initialize();
-		//スケールチェンジ初期化
-		matrix.ScaleChange(worldTransform, 1.0f, 1.0f, 1.0f, 1.0f);
-		//乱数範囲の指定
-		std::uniform_real_distribution<float> rotaDistX(0, XM_PI);
-		std::uniform_real_distribution<float> rotaDistY(0, XM_PI);
-		std::uniform_real_distribution<float> rotaDistZ(0, XM_PI);
+	//for (WorldTransform& worldTransform : worldTransforms_) {
+	//	//ワールドトランスフォームの初期化
+	//	worldTransform.Initialize();
+	//	//スケールチェンジ初期化
+	//	matrix.ScaleChange(worldTransform, 1.0f, 1.0f, 1.0f, 1.0f);
+	//	//乱数範囲の指定
+	//	std::uniform_real_distribution<float> rotaDistX(0, XM_PI);
+	//	std::uniform_real_distribution<float> rotaDistY(0, XM_PI);
+	//	std::uniform_real_distribution<float> rotaDistZ(0, XM_PI);
 
-		random.x = rotaDistX(engine);
-		random.y = rotaDistY(engine);
-		random.z = rotaDistZ(engine);
-		//回転初期化
-		matrix.RotaChange(worldTransform, random.x, random.y, random.z);
-		//乱数範囲の指定
-		std::uniform_real_distribution<float> transDistX(-10, 10);
-		std::uniform_real_distribution<float> transDistY(-10, 10);
-		std::uniform_real_distribution<float> transDistZ(-10, 10);
+	//	random.x = rotaDistX(engine);
+	//	random.y = rotaDistY(engine);
+	//	random.z = rotaDistZ(engine);
+	//	//回転初期化
+	//	matrix.RotaChange(worldTransform, random.x, random.y, random.z);
+	//	//乱数範囲の指定
+	//	std::uniform_real_distribution<float> transDistX(-10, 10);
+	//	std::uniform_real_distribution<float> transDistY(-10, 10);
+	//	std::uniform_real_distribution<float> transDistZ(-10, 10);
 
-		random.x = transDistX(engine);
-		random.y = transDistY(engine);
-		random.z = transDistZ(engine);
-		//平行移動
-		matrix.ChangeTranslation(worldTransform, random.x, random.y, random.z);
+	//	random.x = transDistX(engine);
+	//	random.y = transDistY(engine);
+	//	random.z = transDistZ(engine);
+	//	//平行移動
+	//	matrix.ChangeTranslation(worldTransform, random.x, random.y, random.z);
 
-		matrix.UpdataMatrix(worldTransform);
-	}
+	//	matrix.UpdataMatrix(worldTransform);
+	//}
+
+	//親
+	worldTransforms_[0].Initialize();
+	//子
+	worldTransforms_[1].Initialize();
+	worldTransforms_[1].translation_ = { 0.0f,4.5f,0 };
+	worldTransforms_[1].parent_ = &worldTransforms_[0];
+
+	matrix.UpdataMatrix(worldTransforms_[0]);
 
 }
 
@@ -186,17 +195,52 @@ void GameScene::Update() {
 
 	//クリップ距離変更処理
 	{
-		const float speed = 0.2f;
-		//上下キーでニアクリップ距離を増減
-		if (input_->PushKey(DIK_UP)) {
-			viewProjection_.nearZ += speed;
-		}
-		else if (input_->PushKey(DIK_DOWN)) {
-			viewProjection_.nearZ -= speed;
-		}
+		//const float speed = 0.2f;
+		////上下キーでニアクリップ距離を増減
+		//if (input_->PushKey(DIK_UP)) {
+		//	viewProjection_.nearZ += speed;
+		//}
+		//else if (input_->PushKey(DIK_DOWN)) {
+		//	viewProjection_.nearZ -= speed;
+		//}
 
-		//行列の再計算
-		viewProjection_.UpdateMatrix();
+		////行列の再計算
+		//viewProjection_.UpdateMatrix();
+	}
+
+	//キャラクター移動処理
+	{
+		//キャラクター移動ベクトル
+		Vector3 move = { 0,0,0 };
+		const float speed = 0.2f;
+
+		if (input_->PushKey(DIK_RIGHT)) {
+			move = { speed,0,0 };
+		}
+		else if (input_->PushKey(DIK_LEFT)) {
+			move = { -speed,0,0 };
+		}
+		worldTransforms_[0].translation_ += move;
+
+		matrix.ScaleChange(worldTransforms_[0], 1.0f, 1.0f, 1.0f, 1.0f);
+		matrix.RotaChange(worldTransforms_[0], 0, 0, 0);
+		matrix.ChangeTranslation(worldTransforms_[0],
+			worldTransforms_[0].translation_.x,
+			worldTransforms_[0].translation_.y,
+			worldTransforms_[0].translation_.z);
+
+		matrix.UpdataMatrix(worldTransforms_[0]);
+	}
+	//子の更新
+	{
+		matrix.ScaleChange(worldTransforms_[1], 1.0f, 1.0f, 1.0f, 1.0f);
+		matrix.RotaChange(worldTransforms_[1], 0, 0, 0);
+		matrix.ChangeTranslation(worldTransforms_[1],
+			worldTransforms_[1].translation_.x,
+			worldTransforms_[1].translation_.y,
+			worldTransforms_[1].translation_.z);
+
+		matrix.UpdataMatrix(worldTransforms_[0],worldTransforms_[1]);
 	}
 
 	//debugText_->SetPos(50, 50);
@@ -217,13 +261,17 @@ void GameScene::Update() {
 	//	viewProjection_.up.y,
 	//	viewProjection_.up.z);
 
-	debugText_->SetPos(50, 110);
+	/*debugText_->SetPos(50, 110);
 	debugText_->Printf("fovAngleY()Degree : %f",
 		viewProjection_.fovAngleY * (180/XM_PI));
 
 	debugText_->SetPos(50, 130);
 	debugText_->Printf("nearZ(%f)",
-		viewProjection_.nearZ);
+		viewProjection_.nearZ);*/
+
+	debugText_->SetPos(50, 150);
+	debugText_->Printf("translation_.z : %f",
+		worldTransforms_[0].translation_.z);
 
 }
 
@@ -254,9 +302,12 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	//3Dモデル描画
-	for (WorldTransform& worldTransform : worldTransforms_) {
+	/*for (WorldTransform& worldTransform : worldTransforms_) {
 		model_->Draw(worldTransform, viewProjection_, textureHandle_);
-	}
+	}*/
+
+	model_->Draw(worldTransforms_[0], viewProjection_, textureHandle_);
+	model_->Draw(worldTransforms_[1], viewProjection_, textureHandle_);
 
 	for (int i = 0; i < 30; i++) {
 		//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）

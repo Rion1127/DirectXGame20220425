@@ -88,12 +88,27 @@ void Matrix::UpdataMatrix(WorldTransform worldTransform)
 	//行列の合成
 	UnitMatrix(worldTransform.matWorld_);
 	
-	worldTransform.matWorld_ = matResult.Scale;
+	worldTransform.matWorld_ *= matResult.Scale;
 	worldTransform.matWorld_ *= matResult.Rot;
 	worldTransform.matWorld_ *= matResult.Trans;
 
 	//行列の転送
 	worldTransform.TransferMatrix();
+}
+
+void Matrix::UpdataMatrix(WorldTransform parent, WorldTransform child)
+{
+	//行列の合成
+	UnitMatrix(child.matWorld_);
+
+	child.matWorld_ *= matResult.Scale;
+	child.matWorld_ *= matResult.Rot;
+	child.matWorld_ *= matResult.Trans;
+
+	child.matWorld_ *= parent.matWorld_;
+
+	//行列の転送
+	child.TransferMatrix();
 }
 
 

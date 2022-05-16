@@ -22,6 +22,8 @@ public:
 
 	void UpdataMatrix(WorldTransform worldTransform);
 
+	void UpdataMatrix(WorldTransform parent, WorldTransform child);
+
 private:
 	MatResult matResult;
 };

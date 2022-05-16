@@ -45,7 +45,7 @@ void GameScene::Initialize() {
 	//viewProjection_.nearZ = 52.0f;
 	////ファークリップ距離を設定->奥
 	//viewProjection_.farZ = 53.0f;
-	
+
 	//ビュープロジェクションの初期化
 	viewProjection_.Initialize();
 	//デバッグカメラの生成
@@ -109,7 +109,7 @@ void GameScene::Initialize() {
 	worldTransforms_[0].Initialize();
 	//子
 	worldTransforms_[1].Initialize();
-	worldTransforms_[1].translation_ = { 0.0f,4.5f,0 };
+	worldTransforms_[1].translation_ = { 0.0f,4.5f,0.0f };
 	worldTransforms_[1].parent_ = &worldTransforms_[0];
 
 	matrix.UpdataMatrix(worldTransforms_[0]);
@@ -222,8 +222,8 @@ void GameScene::Update() {
 		}
 		worldTransforms_[0].translation_ += move;
 
-		matrix.ScaleChange(worldTransforms_[0], 1.0f, 1.0f, 1.0f, 1.0f);
-		matrix.RotaChange(worldTransforms_[0], 0, 0, 0);
+		matrix.ScaleChange(worldTransforms_[0], 1.0f, 1.0f, 1.0f,1.0f);
+		matrix.RotaChange(worldTransforms_[0],0.0f, 0.0f, 0.0f);
 		matrix.ChangeTranslation(worldTransforms_[0],
 			worldTransforms_[0].translation_.x,
 			worldTransforms_[0].translation_.y,
@@ -233,14 +233,9 @@ void GameScene::Update() {
 	}
 	//子の更新
 	{
-		matrix.ScaleChange(worldTransforms_[1], 1.0f, 1.0f, 1.0f, 1.0f);
-		matrix.RotaChange(worldTransforms_[1], 0, 0, 0);
-		matrix.ChangeTranslation(worldTransforms_[1],
-			worldTransforms_[1].translation_.x,
-			worldTransforms_[1].translation_.y,
-			worldTransforms_[1].translation_.z);
+		
 
-		matrix.UpdataMatrix(worldTransforms_[0],worldTransforms_[1]);
+		
 	}
 
 	//debugText_->SetPos(50, 50);
@@ -261,16 +256,22 @@ void GameScene::Update() {
 	//	viewProjection_.up.y,
 	//	viewProjection_.up.z);
 
-	/*debugText_->SetPos(50, 110);
-	debugText_->Printf("fovAngleY()Degree : %f",
-		viewProjection_.fovAngleY * (180/XM_PI));
+	debugText_->SetPos(50, 110);
+	debugText_->Printf("scale_.x.y.z : x:%f y:%f z:%f",
+		worldTransforms_[0].scale_.x,
+		worldTransforms_[0].scale_.y,
+		worldTransforms_[0].scale_.z);
 
 	debugText_->SetPos(50, 130);
-	debugText_->Printf("nearZ(%f)",
-		viewProjection_.nearZ);*/
+	debugText_->Printf("rota.x.y.z : x:%f y:%f z:%f",
+		worldTransforms_[0].rotation_.x,
+		worldTransforms_[0].rotation_.y,
+		worldTransforms_[0].rotation_.z);
 
 	debugText_->SetPos(50, 150);
-	debugText_->Printf("translation_.z : %f",
+	debugText_->Printf("translation_.x.y.z : x:%f y:%f z:%f",
+		worldTransforms_[0].translation_.x,
+		worldTransforms_[0].translation_.y,
 		worldTransforms_[0].translation_.z);
 
 }

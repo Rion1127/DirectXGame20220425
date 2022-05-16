@@ -13,16 +13,21 @@ public:
 	Matrix();
 
 	void UnitMatrix(Matrix4 m);
-
+	//èâä˙ê›íË
 	void ScaleChange(WorldTransform worldTransform, float m1, float m2, float m3, float m4);
 
 	void RotaChange(WorldTransform worldTransform, float m1, float m2, float m3);
 
 	void ChangeTranslation(WorldTransform worldTransform, float tx, float ty, float tz);
 
-	void UpdataMatrix(WorldTransform worldTransform);
+	//òAë±èàóù
+	void ScaleChange(WorldTransform worldTransform);
 
-	void UpdataMatrix(WorldTransform parent, WorldTransform child);
+	void RotaChange(WorldTransform worldTransform);
+
+	void ChangeTranslation(WorldTransform worldTransform);
+
+	void UpdataMatrix(WorldTransform worldTransform);
 
 private:
 	MatResult matResult;

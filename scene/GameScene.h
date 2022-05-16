@@ -55,11 +55,13 @@ class GameScene {
 	//3Dモデル
 	Model* model_ = nullptr;
 	//ワールドトランスフォーム
-	WorldTransform worldTransform_;
+	WorldTransform worldTransforms_[100];
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
+	//カメラ上方向の角度
+	float viewAngle = 0.0f;
 
 
 	//ライン描画X座標
@@ -75,6 +77,8 @@ class GameScene {
 
 	//ワールド変換行列
 	Matrix matrix;
+	//ランダム
+	Vector3 random;
 
 
 	/// <summary>

@@ -12,7 +12,7 @@ class Matrix
 public:
 	Matrix();
 
-	void UnitMatrix(Matrix4 m);
+	void UnitMatrix(Matrix4& m);
 	//‰Šúİ’è
 	void ScaleChange(WorldTransform worldTransform, float m1, float m2, float m3, float m4);
 
@@ -27,7 +27,7 @@ public:
 
 	void ChangeTranslation(WorldTransform worldTransform);
 
-	void UpdataMatrix(WorldTransform worldTransform);
+	void UpdataMatrix(WorldTransform& worldTransform);
 
 private:
 	MatResult matResult;

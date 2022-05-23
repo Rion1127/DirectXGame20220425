@@ -8,17 +8,18 @@
 
 Matrix::Matrix()
 {
+	matResult.Trans = MathUtility::Matrix4Identity();
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			matResult.Scale.m[i][j] = 0;
 			matResult.Rot.m[i][j] = 0;
 		}
 	}
-	matResult.Trans = MathUtility::Matrix4Identity();
+	
 }
 
 //単位行列
-void Matrix::UnitMatrix(Matrix4 m) {
+void Matrix::UnitMatrix(Matrix4& m) {
 	Matrix4 unitMatrix;
 
 	unitMatrix.m[0][0] = 1.0f;
@@ -35,7 +36,7 @@ void Matrix::ScaleChange(WorldTransform worldTransform, float m1, float m2, floa
 	//X,Y,Z方向のスケーリングを設定
 	worldTransform.scale_ = { m1,m2,m3 };
 	//スケーリング行列を宣言
-	
+
 	matResult.Scale.m[0][0] = worldTransform.scale_.x;
 	matResult.Scale.m[1][1] = worldTransform.scale_.y;
 	matResult.Scale.m[2][2] = worldTransform.scale_.z;
@@ -91,6 +92,7 @@ void Matrix::ScaleChange(WorldTransform worldTransform)
 	matResult.Scale.m[0][0] = worldTransform.scale_.x;
 	matResult.Scale.m[1][1] = worldTransform.scale_.y;
 	matResult.Scale.m[2][2] = worldTransform.scale_.z;
+	matResult.Scale.m[3][3] = 1;
 }
 void Matrix::RotaChange(WorldTransform worldTransform)
 {
@@ -131,11 +133,16 @@ void Matrix::ChangeTranslation(WorldTransform worldTransform)
 }
 
 //組み合わせ
-void Matrix::UpdataMatrix(WorldTransform worldTransform)
+void Matrix::UpdataMatrix(WorldTransform& worldTransform)
 {
 	//行列の合成
+
+	ScaleChange(worldTransform);
+	RotaChange(worldTransform);
+	ChangeTranslation(worldTransform);
+
+
 	UnitMatrix(worldTransform.matWorld_);
-	
 	worldTransform.matWorld_ *= matResult.Scale;
 	worldTransform.matWorld_ *= matResult.Rot;
 	worldTransform.matWorld_ *= matResult.Trans;

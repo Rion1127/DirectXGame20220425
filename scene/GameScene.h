@@ -76,7 +76,10 @@ class GameScene {
 	Vector4 colorZ;
 
 	//ワールド変換行列
-	Matrix matrix;
+	Matrix matrix[100];
+	MatResult matResult;
+	Matrix4 matRotX, matRotY, matRotZ;
+
 	//ランダム
 	Vector3 random;
 

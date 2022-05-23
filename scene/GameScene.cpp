@@ -29,7 +29,7 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0,20,-25 };
+	viewProjection_.eye = { 0,0,-25 };
 	////カメラの注視点座標を設定
 	//viewProjection_.target = { 10,0,0 };
 	////カメラ上方向ベクトルを設定（右上45度指定）
@@ -112,8 +112,7 @@ void GameScene::Initialize() {
 	worldTransforms_[1].translation_ = { 0.0f,4.5f,0.0f };
 	worldTransforms_[1].parent_ = &worldTransforms_[0];
 
-	matrix.UpdataMatrix(worldTransforms_[0]);
-
+	matrix[0].UpdataMatrix(worldTransforms_[0]);
 }
 
 void GameScene::Update() {
@@ -220,20 +219,14 @@ void GameScene::Update() {
 		else if (input_->PushKey(DIK_LEFT)) {
 			move = { -speed,0,0 };
 		}
+
 		worldTransforms_[0].translation_ += move;
 
-		matrix.ScaleChange(worldTransforms_[0], 1.0f, 1.0f, 1.0f,1.0f);
-		matrix.RotaChange(worldTransforms_[0],0.0f, 0.0f, 0.0f);
-		matrix.ChangeTranslation(worldTransforms_[0],
-			worldTransforms_[0].translation_.x,
-			worldTransforms_[0].translation_.y,
-			worldTransforms_[0].translation_.z);
-
-		matrix.UpdataMatrix(worldTransforms_[0]);
+		matrix[0].UpdataMatrix(worldTransforms_[0]);
 	}
 	//子の更新
 	{
-		
+		matrix[1].UpdataMatrix(worldTransforms_[1]);
 
 		
 	}
@@ -269,10 +262,16 @@ void GameScene::Update() {
 		worldTransforms_[0].rotation_.z);
 
 	debugText_->SetPos(50, 150);
-	debugText_->Printf("translation_.x.y.z : x:%f y:%f z:%f",
+	debugText_->Printf("translation_[0].x.y.z : x:%f y:%f z:%f",
 		worldTransforms_[0].translation_.x,
 		worldTransforms_[0].translation_.y,
 		worldTransforms_[0].translation_.z);
+
+	debugText_->SetPos(50, 170);
+	debugText_->Printf("translation_[1].x.y.z : x:%f y:%f z:%f",
+		worldTransforms_[1].translation_.x,
+		worldTransforms_[1].translation_.y,
+		worldTransforms_[1].translation_.z);
 
 }
 

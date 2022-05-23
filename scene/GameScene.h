@@ -44,6 +44,18 @@ class GameScene {
 	/// </summary>
 	void Draw();
 
+	enum PartID {
+		kRoot,	//大本
+		kSpine,	//脊髄
+		kChest,	//胸
+		kHead,	//頭
+		kArmL,	//左腕
+		kArmR,	//右腕
+		kHip,	//尻
+		kLegL,	//左足
+		kLegR,	//右足
+	};
+
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -76,7 +88,7 @@ class GameScene {
 	Vector4 colorZ;
 
 	//ワールド変換行列
-	Matrix matrix[100];
+	Matrix matrix;
 
 	//ランダム
 	Vector3 random;

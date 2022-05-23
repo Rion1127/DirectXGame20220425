@@ -14,11 +14,11 @@ public:
 
 	void UnitMatrix(Matrix4& m);
 	//‰Šúİ’è
-	void ScaleChange(WorldTransform worldTransform, float m1, float m2, float m3, float m4);
+	void ScaleChange(WorldTransform worldTransform, float m1, float m2, float m3, float m4 = 1.0f);
 
 	void RotaChange(WorldTransform worldTransform, float m1, float m2, float m3);
 
-	void ChangeTranslation(WorldTransform worldTransform, float tx, float ty, float tz);
+	void ChangeTranslation(WorldTransform& worldTransform, float tx, float ty, float tz);
 
 	//˜A‘±ˆ—
 	void ScaleChange(WorldTransform worldTransform);

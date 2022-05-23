@@ -1,21 +1,14 @@
 #include "Matrix.h"
 #include "GameScene.h"
-#include "TextureManager.h"
 #include <cassert>
-#include "AxisIndicator.h"
-#include "PrimitiveDrawer.h"
-#include "XMfloat.h"
 
 Matrix::Matrix()
 {
 	matResult.Trans = MathUtility::Matrix4Identity();
 	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			matResult.Scale.m[i][j] = 0;
-			matResult.Rot.m[i][j] = 0;
-		}
+		matResult.Scale.m[i][i] = 1;
+		matResult.Rot.m[i][i] = 1;
 	}
-	
 }
 
 //単位行列
@@ -76,7 +69,7 @@ void Matrix::RotaChange(WorldTransform worldTransform, float m1, float m2, float
 	matResult.Rot *= matRotY;
 }
 //平行移動
-void Matrix::ChangeTranslation(WorldTransform worldTransform, float tx, float ty, float tz)
+void Matrix::ChangeTranslation(WorldTransform& worldTransform, float tx, float ty, float tz)
 {
 	//Ｘ，Ｙ，Ｚ軸周りの平行移動を設定
 	worldTransform.translation_ = { tx,ty,tz };
@@ -137,10 +130,9 @@ void Matrix::UpdataMatrix(WorldTransform& worldTransform)
 {
 	//行列の合成
 
-	ScaleChange(worldTransform);
+	/*ScaleChange(worldTransform);
 	RotaChange(worldTransform);
-	ChangeTranslation(worldTransform);
-
+	ChangeTranslation(worldTransform);*/
 
 	UnitMatrix(worldTransform.matWorld_);
 	worldTransform.matWorld_ *= matResult.Scale;

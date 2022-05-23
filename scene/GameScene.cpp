@@ -29,7 +29,7 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0,0,-25 };
+	viewProjection_.eye = { 0,0,-6 };
 	////カメラの注視点座標を設定
 	//viewProjection_.target = { 10,0,0 };
 	////カメラ上方向ベクトルを設定（右上45度指定）
@@ -105,45 +105,74 @@ void GameScene::Initialize() {
 	//	matrix.UpdataMatrix(worldTransform);
 	//}
 
-	//キャラクターの大本
-	worldTransforms_[PartID::kRoot].Initialize();
-	//脊髄
-	worldTransforms_[PartID::kSpine].Initialize();
-	worldTransforms_[PartID::kSpine].parent_ = &worldTransforms_[PartID::kRoot];
-	worldTransforms_[PartID::kSpine].translation_ = { 0.0f,0.0f,0.0f };
+	//キャラクター初期化
+	{
+		////キャラクターの大元
+		//worldTransforms_[PartID::kRoot].Initialize();
+		////脊髄
+		//worldTransforms_[PartID::kSpine].Initialize();
+		//worldTransforms_[PartID::kSpine].parent_ = &worldTransforms_[PartID::kRoot];
+		//worldTransforms_[PartID::kSpine].translation_ = { 0.0f,0.0f,0.0f };
 
-	matrix.UpdataMatrix(worldTransforms_[0]);
+		//matrix.UpdataMatrix(worldTransforms_[0]);
 
-	//上半身
-	worldTransforms_[PartID::kChest].Initialize();
-	worldTransforms_[PartID::kChest].parent_ = &worldTransforms_[PartID::kSpine];
-	worldTransforms_[PartID::kChest].translation_ = { 0.0f,0.0f,0.0f };
+		////上半身
+		//worldTransforms_[PartID::kChest].Initialize();
+		//worldTransforms_[PartID::kChest].parent_ = &worldTransforms_[PartID::kSpine];
+		//worldTransforms_[PartID::kChest].translation_ = { 0.0f,0.0f,0.0f };
 
-	worldTransforms_[PartID::kHead].Initialize();
-	worldTransforms_[PartID::kHead].parent_ = &worldTransforms_[PartID::kChest];
-	worldTransforms_[PartID::kHead].translation_ = { 0.0f,3.0f,0.0f };
+		//worldTransforms_[PartID::kHead].Initialize();
+		//worldTransforms_[PartID::kHead].parent_ = &worldTransforms_[PartID::kChest];
+		//worldTransforms_[PartID::kHead].translation_ = { 0.0f,3.0f,0.0f };
 
-	worldTransforms_[PartID::kArmL].Initialize();
-	worldTransforms_[PartID::kArmL].parent_ = &worldTransforms_[PartID::kChest];
-	worldTransforms_[PartID::kArmL].translation_ = { 3.0f,0.0f,0.0f };
+		//worldTransforms_[PartID::kArmL].Initialize();
+		//worldTransforms_[PartID::kArmL].parent_ = &worldTransforms_[PartID::kChest];
+		//worldTransforms_[PartID::kArmL].translation_ = { 3.0f,0.0f,0.0f };
 
-	worldTransforms_[PartID::kArmR].Initialize();
-	worldTransforms_[PartID::kArmR].parent_ = &worldTransforms_[PartID::kChest];
-	worldTransforms_[PartID::kArmR].translation_ = { -3.0f,0.0f,0.0f };
+		//worldTransforms_[PartID::kArmR].Initialize();
+		//worldTransforms_[PartID::kArmR].parent_ = &worldTransforms_[PartID::kChest];
+		//worldTransforms_[PartID::kArmR].translation_ = { -3.0f,0.0f,0.0f };
 
 
-	//下半身
-	worldTransforms_[PartID::kHip].Initialize();
-	worldTransforms_[PartID::kHip].parent_ = &worldTransforms_[PartID::kSpine];
-	worldTransforms_[PartID::kHip].translation_ = { 0.0f,-3.0f,0.0f };
+		////下半身
+		//worldTransforms_[PartID::kHip].Initialize();
+		//worldTransforms_[PartID::kHip].parent_ = &worldTransforms_[PartID::kSpine];
+		//worldTransforms_[PartID::kHip].translation_ = { 0.0f,-3.0f,0.0f };
 
-	worldTransforms_[PartID::kLegL].Initialize();
-	worldTransforms_[PartID::kLegL].parent_ = &worldTransforms_[PartID::kHip];
-	worldTransforms_[PartID::kLegL].translation_ = { 3.0f,-3.0f,0.0f };
+		//worldTransforms_[PartID::kLegL].Initialize();
+		//worldTransforms_[PartID::kLegL].parent_ = &worldTransforms_[PartID::kHip];
+		//worldTransforms_[PartID::kLegL].translation_ = { 3.0f,-3.0f,0.0f };
 
-	worldTransforms_[PartID::kLegR].Initialize();
-	worldTransforms_[PartID::kLegR].parent_ = &worldTransforms_[PartID::kHip];
-	worldTransforms_[PartID::kLegR].translation_ = { -3.0f,-3.0f,0.0f };
+		//worldTransforms_[PartID::kLegR].Initialize();
+		//worldTransforms_[PartID::kLegR].parent_ = &worldTransforms_[PartID::kHip];
+		//worldTransforms_[PartID::kLegR].translation_ = { -3.0f,-3.0f,0.0f };
+	}
+	for (int i = 0; i < 100; i++) {
+		//ワールドトランスフォームの初期化
+		worldTransforms_[i].Initialize();
+		//スケールチェンジ初期化
+		matrix.ScaleChange(worldTransforms_[i], 1.0f, 1.0f, 1.0f);
+		//回転初期化
+		matrix.RotaChange(worldTransforms_[i], 0, 0, 0);
+		//平行移動
+		matrix.ChangeTranslation(worldTransforms_[i], ( -10.0f + (float)i * 2.0f), - 2.5f, 0);
+
+		matrix.UpdataMatrix(worldTransforms_[i]);
+	}
+
+	for (int i = 50; i < 100; i++) {
+		//ワールドトランスフォームの初期化
+		worldTransforms_[i].Initialize();
+		//スケールチェンジ初期化
+		matrix.ScaleChange(worldTransforms_[i], 1.0f, 1.0f, 1.0f);
+		//回転初期化
+		matrix.RotaChange(worldTransforms_[i], 0, 0, 0);
+		//平行移動
+		matrix.ChangeTranslation(worldTransforms_[i], (-10.0f + (float)(i-49) * 2.0f), 2.5f, 0);
+
+		matrix.UpdataMatrix(worldTransforms_[i]);
+	}
+
 }
 
 void GameScene::Update() {
@@ -240,47 +269,50 @@ void GameScene::Update() {
 
 	//キャラクター移動処理
 	{
-		//キャラクター移動ベクトル
-		Vector3 move = { 0,0,0 };
-		const float speed = 0.2f;
+		////キャラクター移動ベクトル
+		//Vector3 move = { 0,0,0 };
+		//const float speed = 0.2f;
 
-		if (input_->PushKey(DIK_RIGHT)) {
-			move = { speed,0,0 };
-		}
-		else if (input_->PushKey(DIK_LEFT)) {
-			move = { -speed,0,0 };
-		}
+		//if (input_->PushKey(DIK_RIGHT)) {
+		//	move = { speed,0,0 };
+		//}
+		//else if (input_->PushKey(DIK_LEFT)) {
+		//	move = { -speed,0,0 };
+		//}
 
-		worldTransforms_[PartID::kRoot].translation_ += move;
+		//worldTransforms_[PartID::kRoot].translation_ += move;
 
 	}
 	//上半身回転処理
 	{
-		Vector3 rotaMove = { 0,0,0 };
-		const float rotaSpeed = 0.2f;
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_U)) {
-			rotaMove = { 0,-rotaSpeed,0 };
-			worldTransforms_[PartID::kChest].rotation_ += rotaMove;
-		}
-		else if (input_->PushKey(DIK_I)) {
-			rotaMove = { 0,rotaSpeed,0 };
-			worldTransforms_[PartID::kChest].rotation_ += rotaMove;
-		}
+		//Vector3 rotaMove = { 0,0,0 };
+		//const float rotaSpeed = 0.2f;
+		////押した方向で移動ベクトルを変更
+		//if (input_->PushKey(DIK_U)) {
+		//	rotaMove = { 0,-rotaSpeed,0 };
+		//	worldTransforms_[PartID::kChest].rotation_ += rotaMove;
+		//}
+		//else if (input_->PushKey(DIK_I)) {
+		//	rotaMove = { 0,rotaSpeed,0 };
+		//	worldTransforms_[PartID::kChest].rotation_ += rotaMove;
+		//}
 
-		if (input_->PushKey(DIK_J)) {
-			rotaMove = { 0,-rotaSpeed,0 };
-			worldTransforms_[PartID::kHip].rotation_ += rotaMove;
-		}
-		else if (input_->PushKey(DIK_K)) {
-			rotaMove = { 0,rotaSpeed,0 };
-			worldTransforms_[PartID::kHip].rotation_ += rotaMove;
-		}
+		//if (input_->PushKey(DIK_J)) {
+		//	rotaMove = { 0,-rotaSpeed,0 };
+		//	worldTransforms_[PartID::kHip].rotation_ += rotaMove;
+		//}
+		//else if (input_->PushKey(DIK_K)) {
+		//	rotaMove = { 0,rotaSpeed,0 };
+		//	worldTransforms_[PartID::kHip].rotation_ += rotaMove;
+		//}
 	}
 	//大元から更新していく
-	for (int i = 0; i <= PartID::kLegR; i++) {
+	/*for (int i = 0; i <= PartID::kLegR; i++) {
 		matrix.UpdataMatrix(worldTransforms_[i]);
-	}
+	}*/
+	/*for (WorldTransform& worldTransform : worldTransforms_) {
+		matrix.UpdataMatrix(worldTransform);
+	}*/
 
 
 	//debugText_->SetPos(50, 50);
@@ -301,7 +333,7 @@ void GameScene::Update() {
 	//	viewProjection_.up.y,
 	//	viewProjection_.up.z);
 
-	debugText_->SetPos(50, 110);
+	/*debugText_->SetPos(50, 110);
 	debugText_->Printf("scale_.x.y.z : x:%f y:%f z:%f",
 		worldTransforms_[0].scale_.x,
 		worldTransforms_[0].scale_.y,
@@ -323,7 +355,7 @@ void GameScene::Update() {
 	debugText_->Printf("translation_[1].x.y.z : x:%f y:%f z:%f",
 		worldTransforms_[1].translation_.x,
 		worldTransforms_[1].translation_.y,
-		worldTransforms_[1].translation_.z);
+		worldTransforms_[1].translation_.z);*/
 
 }
 
@@ -354,19 +386,19 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	//3Dモデル描画
-	/*for (WorldTransform& worldTransform : worldTransforms_) {
+	for (WorldTransform& worldTransform : worldTransforms_) {
 		model_->Draw(worldTransform, viewProjection_, textureHandle_);
-	}*/
-	for (int i = 2; i <= PartID::kLegR; i++) {
+	}
+	/*for (int i = 2; i <= PartID::kLegR; i++) {
 		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
-	}
+	}*/
 
-	for (int i = 0; i < 30; i++) {
-		//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
-		PrimitiveDrawer::GetInstance()->DrawLine3d(vector3X_[i], vector3X_2[i], colorX);
-		//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
-		PrimitiveDrawer::GetInstance()->DrawLine3d(vector3Z_[i], vector3Z_2[i], colorZ);
-	}
+	//for (int i = 0; i < 30; i++) {
+	//	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(vector3X_[i], vector3X_2[i], colorX);
+	//	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(vector3Z_[i], vector3Z_2[i], colorZ);
+	//}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

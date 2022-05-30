@@ -29,7 +29,7 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0,0,-6 };
+	viewProjection_.eye = { 0,0,-50 };
 	////カメラの注視点座標を設定
 	//viewProjection_.target = { 10,0,0 };
 	////カメラ上方向ベクトルを設定（右上45度指定）
@@ -75,6 +75,7 @@ void GameScene::Initialize() {
 	std::random_device seed_gen;
 	//メルセンヌ・ツイスターの乱数エンジン
 	std::mt19937_64 engine(seed_gen());
+
 	//ワールドトランスフォームの初期化
 	//for (WorldTransform& worldTransform : worldTransforms_) {
 	//	//ワールドトランスフォームの初期化
@@ -85,7 +86,6 @@ void GameScene::Initialize() {
 	//	std::uniform_real_distribution<float> rotaDistX(0, XM_PI);
 	//	std::uniform_real_distribution<float> rotaDistY(0, XM_PI);
 	//	std::uniform_real_distribution<float> rotaDistZ(0, XM_PI);
-
 	//	random.x = rotaDistX(engine);
 	//	random.y = rotaDistY(engine);
 	//	random.z = rotaDistZ(engine);
@@ -109,12 +109,13 @@ void GameScene::Initialize() {
 	{
 		////キャラクターの大元
 		//worldTransforms_[PartID::kRoot].Initialize();
+		//worldTransforms_[PartID::kRoot].rotation_ = {0,0,XM_PI / 180 * 45};
 		////脊髄
 		//worldTransforms_[PartID::kSpine].Initialize();
 		//worldTransforms_[PartID::kSpine].parent_ = &worldTransforms_[PartID::kRoot];
 		//worldTransforms_[PartID::kSpine].translation_ = { 0.0f,0.0f,0.0f };
 
-		//matrix.UpdataMatrix(worldTransforms_[0]);
+		//matrix.UpdataMatrix(worldTransforms_[PartID::kRoot]);
 
 		////上半身
 		//worldTransforms_[PartID::kChest].Initialize();
@@ -147,32 +148,45 @@ void GameScene::Initialize() {
 		//worldTransforms_[PartID::kLegR].parent_ = &worldTransforms_[PartID::kHip];
 		//worldTransforms_[PartID::kLegR].translation_ = { -3.0f,-3.0f,0.0f };
 	}
-	for (int i = 0; i < 100; i++) {
-		//ワールドトランスフォームの初期化
-		worldTransforms_[i].Initialize();
-		//スケールチェンジ初期化
-		matrix.ScaleChange(worldTransforms_[i], 1.0f, 1.0f, 1.0f);
-		//回転初期化
-		matrix.RotaChange(worldTransforms_[i], 0, 0, 0);
-		//平行移動
-		matrix.ChangeTranslation(worldTransforms_[i], ( -10.0f + (float)i * 2.0f), - 2.5f, 0);
+	//02_01_ex2
+	{
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 9; j++) {
+				if (i % 2 == 0 || j % 2 == 0) {
+					//ワールドトランスフォームの初期化
+					worldTransforms_[i][j].Initialize();
+					//スケールチェンジ初期化
+					matrix.ScaleChange(worldTransforms_[i][j], 1.0f, 1.0f, 1.0f);
+					//回転初期化
+					matrix.RotaChange(worldTransforms_[i][j], 0, 0, 0);
+					//平行移動
+					matrix.ChangeTranslation(
+						worldTransforms_[i][j],
+						(17.0f - (float)i * 4.0f),
+						17.0f - j * 4.0f,
+						0);
 
-		matrix.UpdataMatrix(worldTransforms_[i]);
+					matrix.UpdataMatrix(worldTransforms_[i][j]);
+				}
+				else {
+					//ワールドトランスフォームの初期化
+					worldTransforms_[i][j].Initialize();
+					//スケールチェンジ初期化
+					matrix.ScaleChange(worldTransforms_[i][j], 0.0f, 0.0f, 0.0f);
+					//回転初期化
+					matrix.RotaChange(worldTransforms_[i][j], 0, 0, 0);
+					//平行移動
+					matrix.ChangeTranslation(
+						worldTransforms_[i][j],
+						0,
+						0,
+						0);
+
+					matrix.UpdataMatrix(worldTransforms_[i][j]);
+				}
+			}
+		}
 	}
-
-	for (int i = 50; i < 100; i++) {
-		//ワールドトランスフォームの初期化
-		worldTransforms_[i].Initialize();
-		//スケールチェンジ初期化
-		matrix.ScaleChange(worldTransforms_[i], 1.0f, 1.0f, 1.0f);
-		//回転初期化
-		matrix.RotaChange(worldTransforms_[i], 0, 0, 0);
-		//平行移動
-		matrix.ChangeTranslation(worldTransforms_[i], (-10.0f + (float)(i-49) * 2.0f), 2.5f, 0);
-
-		matrix.UpdataMatrix(worldTransforms_[i]);
-	}
-
 }
 
 void GameScene::Update() {
@@ -281,7 +295,6 @@ void GameScene::Update() {
 		//}
 
 		//worldTransforms_[PartID::kRoot].translation_ += move;
-
 	}
 	//上半身回転処理
 	{
@@ -314,49 +327,50 @@ void GameScene::Update() {
 		matrix.UpdataMatrix(worldTransform);
 	}*/
 
+	//デバックテキスト
+	{
+		//debugText_->SetPos(50, 50);
+		//debugText_->Printf("eye(%f,%f,%f)",
+		//	viewProjection_.eye.x,
+		//	viewProjection_.eye.y,
+		//	viewProjection_.eye.z);
 
-	//debugText_->SetPos(50, 50);
-	//debugText_->Printf("eye(%f,%f,%f)",
-	//	viewProjection_.eye.x,
-	//	viewProjection_.eye.y,
-	//	viewProjection_.eye.z);
+		//debugText_->SetPos(50, 70);
+		//debugText_->Printf("target(%f,%f,%f)",
+		//	viewProjection_.target.x,
+		//	viewProjection_.target.y,
+		//	viewProjection_.target.z);
 
-	//debugText_->SetPos(50, 70);
-	//debugText_->Printf("target(%f,%f,%f)",
-	//	viewProjection_.target.x,
-	//	viewProjection_.target.y,
-	//	viewProjection_.target.z);
+		//debugText_->SetPos(50, 90);
+		//debugText_->Printf("up(%f,%f,%f)",
+		//	viewProjection_.up.x,
+		//	viewProjection_.up.y,
+		//	viewProjection_.up.z);
 
-	//debugText_->SetPos(50, 90);
-	//debugText_->Printf("up(%f,%f,%f)",
-	//	viewProjection_.up.x,
-	//	viewProjection_.up.y,
-	//	viewProjection_.up.z);
+		/*debugText_->SetPos(50, 110);
+		debugText_->Printf("scale_.x.y.z : x:%f y:%f z:%f",
+			worldTransforms_[0].scale_.x,
+			worldTransforms_[0].scale_.y,
+			worldTransforms_[0].scale_.z);
 
-	/*debugText_->SetPos(50, 110);
-	debugText_->Printf("scale_.x.y.z : x:%f y:%f z:%f",
-		worldTransforms_[0].scale_.x,
-		worldTransforms_[0].scale_.y,
-		worldTransforms_[0].scale_.z);
+		debugText_->SetPos(50, 130);
+		debugText_->Printf("rota.x.y.z : x:%f y:%f z:%f",
+			worldTransforms_[0].rotation_.x,
+			worldTransforms_[0].rotation_.y,
+			worldTransforms_[0].rotation_.z);
 
-	debugText_->SetPos(50, 130);
-	debugText_->Printf("rota.x.y.z : x:%f y:%f z:%f",
-		worldTransforms_[0].rotation_.x,
-		worldTransforms_[0].rotation_.y,
-		worldTransforms_[0].rotation_.z);
+		debugText_->SetPos(50, 150);
+		debugText_->Printf("translation_[0].x.y.z : x:%f y:%f z:%f",
+			worldTransforms_[0].translation_.x,
+			worldTransforms_[0].translation_.y,
+			worldTransforms_[0].translation_.z);
 
-	debugText_->SetPos(50, 150);
-	debugText_->Printf("translation_[0].x.y.z : x:%f y:%f z:%f",
-		worldTransforms_[0].translation_.x,
-		worldTransforms_[0].translation_.y,
-		worldTransforms_[0].translation_.z);
-
-	debugText_->SetPos(50, 170);
-	debugText_->Printf("translation_[1].x.y.z : x:%f y:%f z:%f",
-		worldTransforms_[1].translation_.x,
-		worldTransforms_[1].translation_.y,
-		worldTransforms_[1].translation_.z);*/
-
+		debugText_->SetPos(50, 170);
+		debugText_->Printf("translation_[1].x.y.z : x:%f y:%f z:%f",
+			worldTransforms_[1].translation_.x,
+			worldTransforms_[1].translation_.y,
+			worldTransforms_[1].translation_.z);*/
+	}
 }
 
 void GameScene::Draw() {
@@ -386,8 +400,13 @@ void GameScene::Draw() {
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
 	//3Dモデル描画
-	for (WorldTransform& worldTransform : worldTransforms_) {
+	/*for (WorldTransform& worldTransform : worldTransforms_) {
 		model_->Draw(worldTransform, viewProjection_, textureHandle_);
+	}*/
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			model_->Draw(worldTransforms_[i][j], viewProjection_, textureHandle_);
+		}
 	}
 	/*for (int i = 2; i <= PartID::kLegR; i++) {
 		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);

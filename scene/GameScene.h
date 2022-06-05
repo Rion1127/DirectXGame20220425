@@ -67,7 +67,7 @@ class GameScene {
 	//3Dモデル
 	Model* model_ = nullptr;
 	//ワールドトランスフォーム
-	WorldTransform worldTransforms_[100];
+	WorldTransform worldTransforms_[10];
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 	//デバッグカメラ
@@ -93,6 +93,8 @@ class GameScene {
 	//ランダム
 	Vector3 random;
 
+	Vector3 move;
+	int count;
 
 	/// <summary>
 	/// ゲームシーン用

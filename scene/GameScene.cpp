@@ -30,7 +30,9 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0,0,-25 };
+	viewProjection_[0].eye = { 0,0,-25 };
+	viewProjection_[1].eye = { -30,20,-50 };
+	viewProjection_[2].eye = { 30,20,-15 };
 	////カメラの注視点座標を設定
 	//viewProjection_.target = { 10,0,0 };
 	////カメラ上方向ベクトルを設定（右上45度指定）
@@ -48,15 +50,17 @@ void GameScene::Initialize() {
 	//viewProjection_.farZ = 53.0f;
 
 	//ビュープロジェクションの初期化
-	viewProjection_.Initialize();
 	//デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
+	for (int i = 0; i < 3; i++) {
+		viewProjection_[i].Initialize();
 	//軸方向表示の表示を有効にする
 	AxisIndicator::GetInstance()->SetVisible(true);
+	}
 	//軸方向表示が参考するビュープロジェクションを指定する（アドレス渡し）
-	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_[0]);
 	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
-	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection_);
+	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection_[0]);
 #pragma region ライン描画座標
 	//ライン描画座標X
 	for (int i = 0; i < 30; i++) {
@@ -106,56 +110,44 @@ void GameScene::Initialize() {
 	//	matrix.UpdataMatrix(worldTransform);
 	//}
 
-	////キャラクターの大本
-	//worldTransforms_[PartID::kRoot].Initialize();
-	////脊髄
-	//worldTransforms_[PartID::kSpine].Initialize();
-	//worldTransforms_[PartID::kSpine].parent_ = &worldTransforms_[PartID::kRoot];
-	//worldTransforms_[PartID::kSpine].translation_ = { 0.0f,0.0f,0.0f };
+	//キャラクターの大本
+	worldTransforms_[PartID::kRoot].Initialize();
+	//脊髄
+	worldTransforms_[PartID::kSpine].Initialize();
+	worldTransforms_[PartID::kSpine].parent_ = &worldTransforms_[PartID::kRoot];
+	worldTransforms_[PartID::kSpine].translation_ = { 0.0f,0.0f,0.0f };
 
-	//matrix.UpdataMatrix(worldTransforms_[0]);
+	matrix.UpdataMatrix(worldTransforms_[0]);
 
-	////上半身
-	//worldTransforms_[PartID::kChest].Initialize();
-	//worldTransforms_[PartID::kChest].parent_ = &worldTransforms_[PartID::kSpine];
-	//worldTransforms_[PartID::kChest].translation_ = { 0.0f,0.0f,0.0f };
-	//worldTransforms_[PartID::kHead].Initialize();
-	//worldTransforms_[PartID::kHead].parent_ = &worldTransforms_[PartID::kChest];
-	//worldTransforms_[PartID::kHead].translation_ = { 0.0f,3.0f,0.0f };
-	//worldTransforms_[PartID::kArmL].Initialize();
-	//worldTransforms_[PartID::kArmL].parent_ = &worldTransforms_[PartID::kChest];
-	//worldTransforms_[PartID::kArmL].translation_ = { 3.0f,0.0f,0.0f };
-	//worldTransforms_[PartID::kArmR].Initialize();
-	//worldTransforms_[PartID::kArmR].parent_ = &worldTransforms_[PartID::kChest];
-	//worldTransforms_[PartID::kArmR].translation_ = { -3.0f,0.0f,0.0f };
-	////下半身
-	//worldTransforms_[PartID::kHip].Initialize();
-	//worldTransforms_[PartID::kHip].parent_ = &worldTransforms_[PartID::kSpine];
-	//worldTransforms_[PartID::kHip].translation_ = { 0.0f,-3.0f,0.0f };
-	//worldTransforms_[PartID::kLegL].Initialize();
-	//worldTransforms_[PartID::kLegL].parent_ = &worldTransforms_[PartID::kHip];
-	//worldTransforms_[PartID::kLegL].translation_ = { 3.0f,-3.0f,0.0f };
-	//worldTransforms_[PartID::kLegR].Initialize();
-	//worldTransforms_[PartID::kLegR].parent_ = &worldTransforms_[PartID::kHip];
-	//worldTransforms_[PartID::kLegR].translation_ = { -3.0f,-3.0f,0.0f };
+	//上半身
+	worldTransforms_[PartID::kChest].Initialize();
+	worldTransforms_[PartID::kChest].parent_ = &worldTransforms_[PartID::kSpine];
+	worldTransforms_[PartID::kChest].translation_ = { 0.0f,0.0f,0.0f };
+	worldTransforms_[PartID::kHead].Initialize();
+	worldTransforms_[PartID::kHead].parent_ = &worldTransforms_[PartID::kChest];
+	worldTransforms_[PartID::kHead].translation_ = { 0.0f,3.0f,0.0f };
+	worldTransforms_[PartID::kArmL].Initialize();
+	worldTransforms_[PartID::kArmL].parent_ = &worldTransforms_[PartID::kChest];
+	worldTransforms_[PartID::kArmL].translation_ = { 3.0f,0.0f,0.0f };
+	worldTransforms_[PartID::kArmR].Initialize();
+	worldTransforms_[PartID::kArmR].parent_ = &worldTransforms_[PartID::kChest];
+	worldTransforms_[PartID::kArmR].translation_ = { -3.0f,0.0f,0.0f };
+	//下半身
+	worldTransforms_[PartID::kHip].Initialize();
+	worldTransforms_[PartID::kHip].parent_ = &worldTransforms_[PartID::kSpine];
+	worldTransforms_[PartID::kHip].translation_ = { 0.0f,-3.0f,0.0f };
+	worldTransforms_[PartID::kLegL].Initialize();
+	worldTransforms_[PartID::kLegL].parent_ = &worldTransforms_[PartID::kHip];
+	worldTransforms_[PartID::kLegL].translation_ = { 3.0f,-3.0f,0.0f };
+	worldTransforms_[PartID::kLegR].Initialize();
+	worldTransforms_[PartID::kLegR].parent_ = &worldTransforms_[PartID::kHip];
+	worldTransforms_[PartID::kLegR].translation_ = { -3.0f,-3.0f,0.0f };
 
 	//02_01_ex4
 	{
-		for (int i = 0; i < 10; i++) {
-			worldTransforms_[i].Initialize();
-			matrix.ScaleChange(worldTransforms_[i], 1.0f, 1.0f, 1.0f, 1.0f);
-			matrix.RotaChange(worldTransforms_[i], 0, 0, 0);
-			matrix.ChangeTranslation(
-				worldTransforms_[i],
-				cos(XM_PI2 / 360 * (i * 36)) * 5,//座標,
-				sin(XM_PI2 / 360 * (i * 36)) * 5,
-				0);
 
-			matrix.UpdataMatrix(worldTransforms_[i]);
-
-		}
 	}
-	count = 0;
+
 
 }
 
@@ -264,16 +256,6 @@ void GameScene::Update() {
 		//}
 		//worldTransforms_[PartID::kRoot].translation_ += move;
 
-		count++;
-
-		for (int i = 0; i < 10; i++) {
-			move = {
-			(float)cos(XM_PI2 / 360 * (i * 36 + count)) * 5,
-			(float)sin(XM_PI2 / 360 * (i * 36 + count)) * 5,
-			0 };
-
-			worldTransforms_[i].translation_ = move;
-		}
 
 	}
 	//上半身回転処理
@@ -301,28 +283,40 @@ void GameScene::Update() {
 
 	}
 	//大元から更新していく
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i <= 8; i++) {
 		matrix.UpdataMatrix(worldTransforms_[i]);
 	}
 
+	if (input_->TriggerKey(DIK_SPACE)) {
 
-	//debugText_->SetPos(50, 50);
-	//debugText_->Printf("eye(%f,%f,%f)",
-	//	viewProjection_.eye.x,
-	//	viewProjection_.eye.y,
-	//	viewProjection_.eye.z);
+		isCameraNum++;
+		if (isCameraNum == 3) {
+			isCameraNum = 0;
+		}
+	}
 
-	//debugText_->SetPos(50, 70);
-	//debugText_->Printf("target(%f,%f,%f)",
-	//	viewProjection_.target.x,
-	//	viewProjection_.target.y,
-	//	viewProjection_.target.z);
 
-	//debugText_->SetPos(50, 90);
-	//debugText_->Printf("up(%f,%f,%f)",
-	//	viewProjection_.up.x,
-	//	viewProjection_.up.y,
-	//	viewProjection_.up.z);
+	for (int i = 0; i < 3; i++) {
+		debugText_->SetPos(50, 40 + 80 * i);
+		debugText_->Printf("eye(%f,%f,%f)",
+			viewProjection_[i].eye.x,
+			viewProjection_[i].eye.y,
+			viewProjection_[i].eye.z);
+
+		debugText_->SetPos(50, 60 + 80 * i);
+		debugText_->Printf("target(%f,%f,%f)",
+			viewProjection_[i].target.x,
+			viewProjection_[i].target.y,
+			viewProjection_[i].target.z);
+
+		debugText_->SetPos(50, 80 + 80 * i);
+		debugText_->Printf("up(%f,%f,%f)",
+			viewProjection_[i].up.x,
+			viewProjection_[i].up.y,
+			viewProjection_[i].up.z);
+	}
+	debugText_->SetPos(50, 300);
+	debugText_->Printf("PRESS:SPACE");
 
 	/*debugText_->SetPos(50, 110);
 	debugText_->Printf("scale_.x.y.z : x:%f y:%f z:%f",
@@ -380,8 +374,12 @@ void GameScene::Draw() {
 	/*for (WorldTransform& worldTransform : worldTransforms_) {
 		model_->Draw(worldTransform, viewProjection_, textureHandle_);
 	}*/
-	for (int i = 0; i < 10; i++) {
-		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
+	for (int i = 2; i <= 8; i++) {
+		for (int j = 0; j < 3; j++) {
+			if (isCameraNum == j) {
+				model_->Draw(worldTransforms_[i], viewProjection_[j], textureHandle_);
+			}
+		}
 	}
 
 	for (int i = 0; i < 30; i++) {
@@ -389,6 +387,12 @@ void GameScene::Draw() {
 		PrimitiveDrawer::GetInstance()->DrawLine3d(vector3X_[i], vector3X_2[i], colorX);
 		//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
 		PrimitiveDrawer::GetInstance()->DrawLine3d(vector3Z_[i], vector3Z_2[i], colorZ);
+		for (int j = 0; j < 3; j++) {
+			if (isCameraNum == j) {
+				//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
+				PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection_[j]);
+			}
+		}
 	}
 
 	// 3Dオブジェクト描画後処理

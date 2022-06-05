@@ -69,7 +69,7 @@ class GameScene {
 	//ワールドトランスフォーム
 	WorldTransform worldTransforms_[10];
 	//ビュープロジェクション
-	ViewProjection viewProjection_;
+	ViewProjection viewProjection_[3];
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
 	//カメラ上方向の角度
@@ -95,6 +95,7 @@ class GameScene {
 
 	Vector3 move;
 	int count;
+	int isCameraNum;
 
 	/// <summary>
 	/// ゲームシーン用

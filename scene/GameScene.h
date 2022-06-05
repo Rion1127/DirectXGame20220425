@@ -93,7 +93,8 @@ class GameScene {
 	//ランダム
 	Vector3 random;
 
-
+	Vector3 move;
+	int count;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>

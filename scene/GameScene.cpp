@@ -8,6 +8,7 @@
 #include "math.h"
 
 #define XM_PI 3.141592
+#define XM_PI2 (XM_PI * 2)
 
 GameScene::GameScene() {}
 
@@ -105,13 +106,19 @@ void GameScene::Initialize() {
 	//	matrix.UpdataMatrix(worldTransform);
 	//}
 
-	//キャラクターの大本
-	worldTransforms_[PartID::kRoot].Initialize();
-	//脊髄
-	worldTransforms_[PartID::kSpine].Initialize();
-	worldTransforms_[PartID::kSpine].parent_ = &worldTransforms_[PartID::kRoot];
-	worldTransforms_[PartID::kSpine].translation_ = { 0.0f,0.0f,0.0f };
+	////キャラクターの大本
+	//worldTransforms_[PartID::kRoot].Initialize();
+	////脊髄
+	//worldTransforms_[PartID::kSpine].Initialize();
+	//worldTransforms_[PartID::kSpine].parent_ = &worldTransforms_[PartID::kRoot];
+	//worldTransforms_[PartID::kSpine].translation_ = { 0.0f,0.0f,0.0f };
 
+	//matrix.UpdataMatrix(worldTransforms_[0]);
+
+	worldTransforms_[0].Initialize();
+	matrix.ScaleChange(worldTransforms_[0], 1, 1, 1,1);
+	matrix.RotaChange(worldTransforms_[0], 0, 0, 0);
+	matrix.ChangeTranslation(worldTransforms_[0], 0, 0, 0);
 	matrix.UpdataMatrix(worldTransforms_[0]);
 
 	////上半身
@@ -277,14 +284,16 @@ void GameScene::Update() {
 
 	//カメラ回転
 	{
-		Vector3 move;
+		count++;
 
-		
+		viewProjection_.eye = move = {
+			(float)cos(XM_PI2 / 360 * count) * 10,
+			0 ,
+			(float)sin(XM_PI2 / 360 * count) * 10
+		};
+		//行列の再計算
+		viewProjection_.UpdateMatrix();
 
-		if (input_->PushKey(DIK_A)) {
-			move = {sin()}
-		}
-		viewProjection_.eye;
 	}
 
 
@@ -308,11 +317,11 @@ void GameScene::Update() {
 
 	debugText_->SetPos(50, 110);
 	debugText_->Printf("scale_.x.y.z : x:%f y:%f z:%f",
-		worldTransforms_[0].scale_.x,
-		worldTransforms_[0].scale_.y,
-		worldTransforms_[0].scale_.z);
+		viewProjection_.eye.x,
+		viewProjection_.eye.y,
+		viewProjection_.eye.z);
 
-	debugText_->SetPos(50, 130);
+	/*debugText_->SetPos(50, 130);
 	debugText_->Printf("rota.x.y.z : x:%f y:%f z:%f",
 		worldTransforms_[0].rotation_.x,
 		worldTransforms_[0].rotation_.y,
@@ -328,7 +337,7 @@ void GameScene::Update() {
 	debugText_->Printf("translation_[1].x.y.z : x:%f y:%f z:%f",
 		worldTransforms_[1].translation_.x,
 		worldTransforms_[1].translation_.y,
-		worldTransforms_[1].translation_.z);
+		worldTransforms_[1].translation_.z);*/
 
 }
 
@@ -368,12 +377,12 @@ void GameScene::Draw() {
 
 	model_->Draw(worldTransforms_[0], viewProjection_, textureHandle_);
 
-	for (int i = 0; i < 30; i++) {
-		//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
-		PrimitiveDrawer::GetInstance()->DrawLine3d(vector3X_[i], vector3X_2[i], colorX);
-		//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
-		PrimitiveDrawer::GetInstance()->DrawLine3d(vector3Z_[i], vector3Z_2[i], colorZ);
-	}
+	//for (int i = 0; i < 30; i++) {
+	//	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(vector3X_[i], vector3X_2[i], colorX);
+	//	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(vector3Z_[i], vector3Z_2[i], colorZ);
+	//}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

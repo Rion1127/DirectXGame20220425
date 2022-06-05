@@ -32,7 +32,7 @@ void Matrix::UnitMatrix(Matrix4& m) {
 
 //初期設定
 //スケーリングチェンジ
-void Matrix::ScaleChange(WorldTransform worldTransform, float m1, float m2, float m3, float m4) {
+void Matrix::ScaleChange(WorldTransform& worldTransform, float m1, float m2, float m3, float m4) {
 	//X,Y,Z方向のスケーリングを設定
 	worldTransform.scale_ = { m1,m2,m3 };
 	//スケーリング行列を宣言
@@ -43,7 +43,7 @@ void Matrix::ScaleChange(WorldTransform worldTransform, float m1, float m2, floa
 	matResult.Scale.m[3][3] = m4;
 }
 //回転
-void Matrix::RotaChange(WorldTransform worldTransform, float m1, float m2, float m3) {
+void Matrix::RotaChange(WorldTransform& worldTransform, float m1, float m2, float m3) {
 	//X、Y、Z軸周りの回転角を設定
 	worldTransform.rotation_ = { m1,m2,m3 };
 	//X軸回転行列を宣言
@@ -76,7 +76,7 @@ void Matrix::RotaChange(WorldTransform worldTransform, float m1, float m2, float
 	matResult.Rot *= matRotY;
 }
 //平行移動
-void Matrix::ChangeTranslation(WorldTransform worldTransform, float tx, float ty, float tz)
+void Matrix::ChangeTranslation(WorldTransform& worldTransform, float tx, float ty, float tz)
 {
 	//Ｘ，Ｙ，Ｚ軸周りの平行移動を設定
 	worldTransform.translation_ = { tx,ty,tz };
@@ -87,14 +87,14 @@ void Matrix::ChangeTranslation(WorldTransform worldTransform, float tx, float ty
 }
 
 //連続処理
-void Matrix::ScaleChange(WorldTransform worldTransform)
+void Matrix::ScaleChange(WorldTransform& worldTransform)
 {
 	matResult.Scale.m[0][0] = worldTransform.scale_.x;
 	matResult.Scale.m[1][1] = worldTransform.scale_.y;
 	matResult.Scale.m[2][2] = worldTransform.scale_.z;
 	matResult.Scale.m[3][3] = 1;
 }
-void Matrix::RotaChange(WorldTransform worldTransform)
+void Matrix::RotaChange(WorldTransform& worldTransform)
 {
 	//X軸回転行列を宣言
 	Matrix4 matRotX, matRotY, matRotZ;
@@ -125,7 +125,7 @@ void Matrix::RotaChange(WorldTransform worldTransform)
 	matResult.Rot *= matRotX;
 	matResult.Rot *= matRotY;
 }
-void Matrix::ChangeTranslation(WorldTransform worldTransform)
+void Matrix::ChangeTranslation(WorldTransform& worldTransform)
 {
 	matResult.Trans.m[3][0] = worldTransform.translation_.x;
 	matResult.Trans.m[3][1] = worldTransform.translation_.y;

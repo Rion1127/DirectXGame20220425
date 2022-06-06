@@ -3,7 +3,7 @@
 #include <cassert>
 #include "AxisIndicator.h"
 #include "PrimitiveDrawer.h"
-#include "XMfloat.h"
+#include "XMFLOAT3.h"
 #include <random>
 #include "math.h"
 
@@ -29,7 +29,7 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0,0,-25 };
+	viewProjection_.eye = { 0,20,-25 };
 	////カメラの注視点座標を設定
 	//viewProjection_.target = { 10,0,0 };
 	////カメラ上方向ベクトルを設定（右上45度指定）
@@ -121,7 +121,7 @@ void GameScene::Initialize() {
 
 	worldTransforms_[PartID::kHead].Initialize();
 	worldTransforms_[PartID::kHead].parent_ = &worldTransforms_[PartID::kChest];
-	worldTransforms_[PartID::kHead].translation_ = { 0.0f,3.0f,0.0f };
+	worldTransforms_[PartID::kHead].translation_ = { 0.0f,0.0f,3.0f };
 
 	worldTransforms_[PartID::kArmL].Initialize();
 	worldTransforms_[PartID::kArmL].parent_ = &worldTransforms_[PartID::kChest];
@@ -133,7 +133,7 @@ void GameScene::Initialize() {
 
 
 	//下半身
-	worldTransforms_[PartID::kHip].Initialize();
+	/*worldTransforms_[PartID::kHip].Initialize();
 	worldTransforms_[PartID::kHip].parent_ = &worldTransforms_[PartID::kSpine];
 	worldTransforms_[PartID::kHip].translation_ = { 0.0f,-3.0f,0.0f };
 
@@ -143,7 +143,7 @@ void GameScene::Initialize() {
 
 	worldTransforms_[PartID::kLegR].Initialize();
 	worldTransforms_[PartID::kLegR].parent_ = &worldTransforms_[PartID::kHip];
-	worldTransforms_[PartID::kLegR].translation_ = { -3.0f,-3.0f,0.0f };
+	worldTransforms_[PartID::kLegR].translation_ = { -3.0f,-3.0f,0.0f };*/
 }
 
 void GameScene::Update() {
@@ -239,46 +239,80 @@ void GameScene::Update() {
 	}
 
 	//キャラクター移動処理
-	{
-		//キャラクター移動ベクトル
-		Vector3 move = { 0,0,0 };
-		const float speed = 0.2f;
+#pragma region キャラクター移動
+//キャラクターの移動ベクトル
+	XMFLOAT3 move = { 0, 0, 0 };
+	//キャラクターの移動速さ
+	float kCharacterSpeed = 0.2f;
 
-		if (input_->PushKey(DIK_RIGHT)) {
-			move = { speed,0,0 };
-		}
-		else if (input_->PushKey(DIK_LEFT)) {
-			move = { -speed,0,0 };
-		}
-
-		worldTransforms_[PartID::kRoot].translation_ += move;
-
-	}
 	//上半身回転処理
-	{
-		Vector3 rotaMove = { 0,0,0 };
-		const float rotaSpeed = 0.2f;
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_U)) {
-			rotaMove = { 0,-rotaSpeed,0 };
-			worldTransforms_[PartID::kChest].rotation_ += rotaMove;
-		}
-		else if (input_->PushKey(DIK_I)) {
-			rotaMove = { 0,rotaSpeed,0 };
-			worldTransforms_[PartID::kChest].rotation_ += rotaMove;
-		}
+	//上半身の回転の速さ[ラジアン/frame]
+	const float kChestRotSpeed = 0.05f;
 
-		if (input_->PushKey(DIK_J)) {
-			rotaMove = { 0,-rotaSpeed,0 };
-			worldTransforms_[PartID::kHip].rotation_ += rotaMove;
-		}
-		else if (input_->PushKey(DIK_K)) {
-			rotaMove = { 0,rotaSpeed,0 };
-			worldTransforms_[PartID::kHip].rotation_ += rotaMove;
-		}
+	XMFLOAT3 frontVec = { 0, 0, 1 };
+	XMFLOAT3 resultVec = { 0, 0, 0 };
+	float moveSopeed = 0.2f;
+
+	//プレイヤーの正面ベクトル
+	resultVec.x = {
+	  cos(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.x
+	  + sin(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.z
+	};
+
+	resultVec.z = {
+	  -sin(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.x +
+	  cos(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.z
+	};
+
+	//押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_UP)) {
+		move = { resultVec.x * moveSopeed, 0, resultVec.z * moveSopeed };
 	}
+	else if (input_->PushKey(DIK_DOWN)) {
+		move = { -resultVec.x * moveSopeed, 0, -resultVec.z * moveSopeed };
+	}
+
+	//押した方向で移動ベクトルを変更
+	if (input_->PushKey(DIK_LEFT)) {
+		worldTransforms_[PartID::kChest].rotation_.y -= kChestRotSpeed;
+	}
+	else if (input_->PushKey(DIK_RIGHT)) {
+		worldTransforms_[PartID::kChest].rotation_.y += kChestRotSpeed;
+	}
+
+	//大本から更新していく
+	matrix.UpdataMatrix(worldTransforms_[PartID::kRoot]);
+	matrix.UpdataMatrix(worldTransforms_[PartID::kSpine]);
+	for (int i = PartID::kChest; i <= PartID::kArmR; i++) {
+		matrix.UpdataMatrix(worldTransforms_[i]);
+	}
+
+	//注視点移動
+	worldTransforms_[PartID::kRoot].translation_.x += move.x;
+	worldTransforms_[PartID::kRoot].translation_.y += move.y;
+	worldTransforms_[PartID::kRoot].translation_.z += move.z;
+#pragma endregion
+	
+
+	//カメラ移動
+	XMFLOAT3 resultEye;
+	XMFLOAT3 resultTarget;
+	float cameraDistance = 30;
+	//カメラ注視点座標指定
+	resultTarget = worldTransforms_[PartID::kRoot].translation_;
+
+	resultEye.x = -resultVec.x * cameraDistance + resultTarget.x;
+	resultEye.y = 20.0f;
+	resultEye.z = -resultVec.z * cameraDistance + resultTarget.z;
+
+	//カメラ視点座標を設定
+	viewProjection_.eye = { resultEye.x, resultEye.y,resultEye.z };
+	//カメラ注視点座標を設定
+	viewProjection_.target = { resultTarget.x, resultTarget.y, resultTarget.z };
+	
+
 	//大元から更新していく
-	for (int i = 0; i <= PartID::kLegR; i++) {
+	for (int i = 0; i <= PartID::kArmR; i++) {
 		matrix.UpdataMatrix(worldTransforms_[i]);
 	}
 
@@ -357,7 +391,7 @@ void GameScene::Draw() {
 	/*for (WorldTransform& worldTransform : worldTransforms_) {
 		model_->Draw(worldTransform, viewProjection_, textureHandle_);
 	}*/
-	for (int i = 2; i <= PartID::kLegR; i++) {
+	for (int i = 2; i <= PartID::kArmR; i++) {
 		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
 	}
 

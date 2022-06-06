@@ -11,6 +11,7 @@
 #define XM_PI 3.141592
 
 float XMConvertToRadians(float fDegrees) { return fDegrees * (XM_PI / 180.0f); }
+float XMConvertToDegrees(float fDegrees) { return fDegrees * (180.0f / XM_PI); }
 
 GameScene::GameScene() {}
 
@@ -153,7 +154,7 @@ void GameScene::Initialize() {
 	}
 
 	reticleTexture = TextureManager::Load("reticle.png");
-	sprite_ = Sprite::Create(reticleTexture, { WinApp::kWindowWidth/2 - 64,WinApp::kWindowHeight/2 -64});
+	sprite_ = Sprite::Create(reticleTexture, { WinApp::kWindowWidth / 2 - 64,WinApp::kWindowHeight / 2 - 64 });
 	isReticle = false;
 
 }
@@ -228,16 +229,17 @@ void GameScene::Update() {
 	{
 		const float angleSpeed = 0.01f;
 		//上キーで視野角が広がる
-		if (input_->TriggerKey(DIK_SPACE)) {
-			if (viewProjection_.fovAngleY == XMConvertToRadians(50.0f)) {
-				viewProjection_.fovAngleY = XMConvertToRadians(20.0f);
-				isReticle = true;
+		if (input_->PushKey(DIK_SPACE)) {
+			isReticle = true;
+			if (XMConvertToDegrees(viewProjection_.fovAngleY) > 20.0f) {
+				viewProjection_.fovAngleY -= 0.05f;
 			}
-			else if (viewProjection_.fovAngleY == XMConvertToRadians(20.0f)) {
-				viewProjection_.fovAngleY = XMConvertToRadians(50.0f);
-				isReticle = false;
+		}
+		else {
+			isReticle = false;
+			if (XMConvertToDegrees(viewProjection_.fovAngleY) < 50.0f) {
+				viewProjection_.fovAngleY += 0.05f;
 			}
-
 		}
 		//行列の再計算
 		viewProjection_.UpdateMatrix();
@@ -311,7 +313,7 @@ void GameScene::Update() {
 
 	debugText_->SetPos(50, 70);
 	debugText_->Printf("fovAngleY(%f)",
-		XMConvertToRadians(viewProjection_.fovAngleY)
+		XMConvertToDegrees(viewProjection_.fovAngleY)
 	);
 
 	//debugText_->SetPos(50, 90);
@@ -343,7 +345,7 @@ void GameScene::Update() {
 	//	worldTransforms_[1].translation_.x,
 	//	worldTransforms_[1].translation_.y,
 	//	worldTransforms_[1].translation_.z);
-	
+
 }
 
 void GameScene::Draw() {

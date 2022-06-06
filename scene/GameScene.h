@@ -94,6 +94,7 @@ class GameScene {
 	Vector3 random;
 
 	int isCameraFlag;
+	int isNextTarget;
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>

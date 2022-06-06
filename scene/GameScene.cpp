@@ -154,6 +154,7 @@ void GameScene::Initialize() {
 	for (int i = 0; i < 3; i++) {
 		matrix.UpdataMatrix(worldTransforms_[i]);
 	}
+	isNextTarget = 1;
 }
 
 void GameScene::Update() {
@@ -180,28 +181,28 @@ void GameScene::Update() {
 	//	viewProjection_.UpdateMatrix();
 	//}
 	//注視点移動処理
-	{
-		//注視点の移動ベクトル
-		Vector3 move = { 0,0,0 };
-		//注視点の移動速さ
-		const float kTargetSpeed = 0.2f;
 
-		//押した方向で移動ベクトルを変更
-		if (input_->TriggerKey(DIK_SPACE)) {
-			isCameraFlag++;
-			if (isCameraFlag == 3) {
-				isCameraFlag = 0;
-			}
+		//注視点の移動ベクトル
+	Vector3 move = { 0,0,0 };
+	//注視点の移動速さ
+	const float kTargetSpeed = 0.2f;
+
+	//押した方向で移動ベクトルを変更
+	if (input_->TriggerKey(DIK_SPACE)) {
+		isCameraFlag++;
+		if (isCameraFlag == 3) {
+			isCameraFlag = 0;
 		}
-		for (int i = 0; i < 3; i++) {
-			if (isCameraFlag == i) {
-				//注視点移動（ベクトルの加算）
-				viewProjection_.target = worldTransforms_[i].translation_;
-			}
-		}
-		//行列の再計算
-		viewProjection_.UpdateMatrix();
 	}
+	move = worldTransforms_[isCameraFlag].translation_;
+	move -= viewProjection_.target;
+
+	viewProjection_.target += move.operator*=(0.1f);
+
+
+	//行列の再計算
+	viewProjection_.UpdateMatrix();
+
 	//上方向回転処理
 	//{
 	//	//上方向の回転速さ[ラジアン/frame]
@@ -332,15 +333,15 @@ void GameScene::Update() {
 
 	debugText_->SetPos(50, 150);
 	debugText_->Printf("translation_[0].x.y.z : x:%f y:%f z:%f",
-		worldTransforms_[2].translation_.x,
-		worldTransforms_[2].translation_.y,
-		worldTransforms_[2].translation_.z);
+		move.x * 0.2f,
+		move.y * 0.2f,
+		move.z * 0.2f);
 
-	/*debugText_->SetPos(50, 170);
-	debugText_->Printf("translation_[1].x.y.z : x:%f y:%f z:%f",
-		worldTransforms_[1].translation_.x,
-		worldTransforms_[1].translation_.y,
-		worldTransforms_[1].translation_.z);*/
+	debugText_->SetPos(50, 170);
+	debugText_->Printf("target[1].x.y.z : x:%f y:%f z:%f",
+		viewProjection_.target.x,
+		viewProjection_.target.y,
+		viewProjection_.target.z);
 
 }
 

@@ -93,6 +93,12 @@ class GameScene {
 	//ランダム
 	Vector3 random;
 
+	//false バイオ :: true カメラ視点
+	bool isCamera;
+	XMFLOAT3 resultEye;
+	XMFLOAT3 resultTarget;
+	
+
 
 	/// <summary>
 	/// ゲームシーン用

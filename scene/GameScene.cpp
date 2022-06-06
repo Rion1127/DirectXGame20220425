@@ -144,6 +144,9 @@ void GameScene::Initialize() {
 	worldTransforms_[PartID::kLegR].Initialize();
 	worldTransforms_[PartID::kLegR].parent_ = &worldTransforms_[PartID::kHip];
 	worldTransforms_[PartID::kLegR].translation_ = { -3.0f,-3.0f,0.0f };*/
+
+	//false バイオ :: true カメラ視点
+	isCamera = false;
 }
 
 void GameScene::Update() {
@@ -206,6 +209,11 @@ void GameScene::Update() {
 	//}
 #pragma endregion
 
+	if (input_->TriggerKey(DIK_Q)) {
+		if(isCamera == false)isCamera = true;
+		else if(isCamera == true)isCamera = false;
+	}
+
 	//FoV変更処理
 	{
 		//const float angleSpeed = 0.05f;
@@ -250,36 +258,69 @@ void GameScene::Update() {
 	const float kChestRotSpeed = 0.05f;
 
 	XMFLOAT3 frontVec = { 0, 0, 1 };
-	XMFLOAT3 resultVec = { 0, 0, 0 };
-	float moveSopeed = 0.2f;
+	Vector3 upVec = { 0,1,0 };
+	Vector3 resultVec = { 0, 0, 0 };
+	Vector3 sideVec = { 0,0,0 };
+	float moveSopeed = 0.5f;
 
-	//プレイヤーの正面ベクトル
-	resultVec.x = {
-	  cos(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.x
-	  + sin(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.z
-	};
+	if (isCamera == false) {
+		//プレイヤーの正面ベクトル
+		resultVec.x = {
+		  cos(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.x
+		  + sin(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.z
+		};
 
-	resultVec.z = {
-	  -sin(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.x +
-	  cos(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.z
-	};
+		resultVec.z = {
+		  -sin(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.x +
+		  cos(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.z
+		};
 
-	//押した方向で移動ベクトルを変更
-	if (input_->PushKey(DIK_UP)) {
-		move = { resultVec.x * moveSopeed, 0, resultVec.z * moveSopeed };
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_W)) {
+			move = { resultVec.x * moveSopeed, 0, resultVec.z * moveSopeed };
+		}
+		else if (input_->PushKey(DIK_S)) {
+			move = { -resultVec.x * moveSopeed, 0, -resultVec.z * moveSopeed };
+		}
+
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_A)) {
+			worldTransforms_[PartID::kChest].rotation_.y -= kChestRotSpeed;
+		}
+		else if (input_->PushKey(DIK_D)) {
+			worldTransforms_[PartID::kChest].rotation_.y += kChestRotSpeed;
+		}
 	}
-	else if (input_->PushKey(DIK_DOWN)) {
-		move = { -resultVec.x * moveSopeed, 0, -resultVec.z * moveSopeed };
-	}
+	else if (isCamera == true) {
+		//プレイヤーの正面ベクトル
+		resultVec = {
+			viewProjection_.target.x - viewProjection_.eye.x,
+			viewProjection_.target.y - viewProjection_.eye.y,
+			viewProjection_.target.z - viewProjection_.eye.z
+		};
+		resultVec.normalize();
 
-	//押した方向で移動ベクトルを変更
-	if (input_->PushKey(DIK_LEFT)) {
-		worldTransforms_[PartID::kChest].rotation_.y -= kChestRotSpeed;
-	}
-	else if (input_->PushKey(DIK_RIGHT)) {
-		worldTransforms_[PartID::kChest].rotation_.y += kChestRotSpeed;
-	}
+		sideVec = upVec.cross(resultVec);
+		sideVec.normalize();
 
+
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_W)) {
+			move = { resultVec.x * moveSopeed, 0, resultVec.z * moveSopeed };
+		}
+		else if (input_->PushKey(DIK_S)) {
+			move = { -resultVec.x * moveSopeed, 0, -resultVec.z * moveSopeed };
+		}
+
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_A)) {
+			move = { -sideVec.x * moveSopeed,-sideVec.y * moveSopeed,-sideVec.z * moveSopeed };
+		}
+		else if (input_->PushKey(DIK_D)) {
+			move = { sideVec.x * moveSopeed,sideVec.y * moveSopeed,sideVec.z * moveSopeed };
+		}
+
+	}
 	//大本から更新していく
 	matrix.UpdataMatrix(worldTransforms_[PartID::kRoot]);
 	matrix.UpdataMatrix(worldTransforms_[PartID::kSpine]);
@@ -293,23 +334,46 @@ void GameScene::Update() {
 	worldTransforms_[PartID::kRoot].translation_.z += move.z;
 #pragma endregion
 	
-
-	//カメラ移動
-	XMFLOAT3 resultEye;
-	XMFLOAT3 resultTarget;
-	float cameraDistance = 30;
-	//カメラ注視点座標指定
-	resultTarget = worldTransforms_[PartID::kRoot].translation_;
-
-	resultEye.x = -resultVec.x * cameraDistance + resultTarget.x;
-	resultEye.y = 20.0f;
-	resultEye.z = -resultVec.z * cameraDistance + resultTarget.z;
-
-	//カメラ視点座標を設定
-	viewProjection_.eye = { resultEye.x, resultEye.y,resultEye.z };
-	//カメラ注視点座標を設定
-	viewProjection_.target = { resultTarget.x, resultTarget.y, resultTarget.z };
 	
+	//カメラ移動
+	XMFLOAT3 cameraMove = {0,0,0};
+	
+	float cameraDistance = 30;
+	if (isCamera == false) {
+		//カメラ注視点座標指定
+		resultTarget = worldTransforms_[PartID::kRoot].translation_;
+
+		resultEye.x = -resultVec.x * cameraDistance + resultTarget.x;
+		resultEye.y = 20.0f;
+		resultEye.z = -resultVec.z * cameraDistance + resultTarget.z;
+
+		//カメラ視点座標を設定
+		viewProjection_.eye = { resultEye.x, resultEye.y,resultEye.z };
+		//カメラ注視点座標を設定
+		viewProjection_.target = { resultTarget.x, resultTarget.y, resultTarget.z };
+	}
+	else if (isCamera == true) {
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_UP)) {
+			cameraMove = { 0,0,moveSopeed };
+		}
+		 if (input_->PushKey(DIK_DOWN)) {
+			cameraMove = { 0,0,-moveSopeed };
+		}
+
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_LEFT)) {
+			cameraMove = { -moveSopeed,0,0 };
+		}
+		 if (input_->PushKey(DIK_RIGHT)) {
+			cameraMove = { moveSopeed,0,0 };
+		}
+		//カメラ視点座標を設定
+		viewProjection_.eye += { cameraMove.x, cameraMove.y,cameraMove.z };
+	}
+	
+	//行列の再計算
+	viewProjection_.UpdateMatrix();
 
 	//大元から更新していく
 	for (int i = 0; i <= PartID::kArmR; i++) {
@@ -336,16 +400,16 @@ void GameScene::Update() {
 	//	viewProjection_.up.z);
 
 	debugText_->SetPos(50, 110);
-	debugText_->Printf("scale_.x.y.z : x:%f y:%f z:%f",
-		worldTransforms_[0].scale_.x,
-		worldTransforms_[0].scale_.y,
-		worldTransforms_[0].scale_.z);
+	debugText_->Printf("target.x.y.z : x:%f y:%f z:%f",
+		viewProjection_.target.x,
+		viewProjection_.target.y,
+		viewProjection_.target.z);
 
 	debugText_->SetPos(50, 130);
-	debugText_->Printf("rota.x.y.z : x:%f y:%f z:%f",
-		worldTransforms_[0].rotation_.x,
-		worldTransforms_[0].rotation_.y,
-		worldTransforms_[0].rotation_.z);
+	debugText_->Printf("eye.x.y.z : x:%f y:%f z:%f",
+		viewProjection_.eye.x,
+		viewProjection_.eye.y,
+		viewProjection_.eye.z);
 
 	debugText_->SetPos(50, 150);
 	debugText_->Printf("translation_[0].x.y.z : x:%f y:%f z:%f",
@@ -354,10 +418,8 @@ void GameScene::Update() {
 		worldTransforms_[0].translation_.z);
 
 	debugText_->SetPos(50, 170);
-	debugText_->Printf("translation_[1].x.y.z : x:%f y:%f z:%f",
-		worldTransforms_[1].translation_.x,
-		worldTransforms_[1].translation_.y,
-		worldTransforms_[1].translation_.z);
+	debugText_->Printf("%d",
+		isCamera);
 
 }
 

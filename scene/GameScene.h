@@ -67,7 +67,7 @@ private: // メンバ変数
 	//3Dモデル
 	Model* model_ = nullptr;
 	//ワールドトランスフォーム
-	WorldTransform worldTransforms_[10][10][10];
+	WorldTransform worldTransforms_[10][10];
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 	//デバッグカメラ
@@ -93,6 +93,10 @@ private: // メンバ変数
 	//ランダム
 	Vector3 random;
 
+	//スプライト
+	Sprite* sprite_ = nullptr;
+	uint32_t reticleTexture = 0;
+	bool isReticle;
 
 	/// <summary>
 	/// ゲームシーン用

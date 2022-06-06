@@ -6,14 +6,18 @@
 #include "XMfloat.h"
 #include <random>
 #include "math.h"
+#include <DirectXMath.h>
 
 #define XM_PI 3.141592
+
+float XMConvertToRadians(float fDegrees) { return fDegrees * (XM_PI / 180.0f); }
 
 GameScene::GameScene() {}
 
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
+	delete sprite_;
 }
 
 void GameScene::Initialize() {
@@ -29,14 +33,14 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0,0,-60 };
+	viewProjection_.eye = { 0,0,-70 };
 	////カメラの注視点座標を設定
 	//viewProjection_.target = { 10,0,0 };
 	////カメラ上方向ベクトルを設定（右上45度指定）
 	//viewProjection_.up = { cosf(XM_PI / 4.0f),sinf(XM_PI / 4.0f),0.0f };
 
 	//カメラ垂直方向視野角を設定
-	//viewProjection_.fovAngleY = 100.0f * (XM_PI / 180);
+	viewProjection_.fovAngleY = 50.0f * (XM_PI / 180);
 
 	////アスペクト比を設定
 	//viewProjection_.aspectRatio = 1.0f;
@@ -138,15 +142,19 @@ void GameScene::Initialize() {
 
 	for (int i = 0; i < 10; i++) {
 		for (int j = 0; j < 10; j++) {
-			for (int k = 0; k < 10; k++) {
-				worldTransforms_[i][j][k].Initialize();
-				matrix.ScaleChange(worldTransforms_[i][j][k], 1.0f, 1.0f, 1.0f, 1.0f);
-				matrix.RotaChange(worldTransforms_[i][j][k], 0,0,0);
-				matrix.ChangeTranslation(worldTransforms_[i][j][k],i * 3.0f - 12, k * 3.0f - 12, j * 3.0f - 12);
-				matrix.UpdataMatrix(worldTransforms_[i][j][k]);
-			}
+
+			worldTransforms_[i][j].Initialize();
+			matrix.ScaleChange(worldTransforms_[i][j], 1.0f, 1.0f, 1.0f, 1.0f);
+			matrix.RotaChange(worldTransforms_[i][j], 0, 0, 0);
+			matrix.ChangeTranslation(worldTransforms_[i][j], i * 3.0f - 12, j * 3.0f - 12, 0);
+			matrix.UpdataMatrix(worldTransforms_[i][j]);
+
 		}
 	}
+
+	reticleTexture = TextureManager::Load("reticle.png");
+	sprite_ = Sprite::Create(reticleTexture, { WinApp::kWindowWidth/2 - 64,WinApp::kWindowHeight/2 -64});
+	isReticle = false;
 
 }
 
@@ -173,25 +181,31 @@ void GameScene::Update() {
 	//	//行列の再計算
 	//	viewProjection_.UpdateMatrix();
 	//}
-	////注視点移動処理
-	//{
-	//	//注視点の移動ベクトル
-	//	Vector3 move = { 0,0,0 };
-	//	//注視点の移動速さ
-	//	const float kTargetSpeed = 0.2f;
+	//注視点移動処理
+	{
+		//注視点の移動ベクトル
+		Vector3 move = { 0,0,0 };
+		//注視点の移動速さ
+		const float kTargetSpeed = 0.2f;
 
-	//	//押した方向で移動ベクトルを変更
-	//	if (input_->PushKey(DIK_LEFT)) {
-	//		move = { -kTargetSpeed,0,0 };
-	//	}
-	//	else if (input_->PushKey(DIK_RIGHT)) {
-	//		move = { kTargetSpeed,0,0 };
-	//	}
-	//	//注視点移動（ベクトルの加算）
-	//	viewProjection_.target += move;
-	//	//行列の再計算
-	//	viewProjection_.UpdateMatrix();
-	//}
+		//押した方向で移動ベクトルを変更
+		if (input_->PushKey(DIK_LEFT)) {
+			move = { -kTargetSpeed,0,0 };
+		}
+		else if (input_->PushKey(DIK_RIGHT)) {
+			move = { kTargetSpeed,0,0 };
+		}
+		else if (input_->PushKey(DIK_UP)) {
+			move = { 0,kTargetSpeed,0 };
+		}
+		else if (input_->PushKey(DIK_DOWN)) {
+			move = { 0,-kTargetSpeed,0 };
+		}
+		//注視点移動（ベクトルの加算）
+		viewProjection_.target += move;
+		//行列の再計算
+		viewProjection_.UpdateMatrix();
+	}
 	////上方向回転処理
 	//{
 	//	//上方向の回転速さ[ラジアン/frame]
@@ -212,19 +226,21 @@ void GameScene::Update() {
 
 	//FoV変更処理
 	{
-		//const float angleSpeed = 0.05f;
-		////上キーで視野角が広がる
-		//if (input_->PushKey(DIK_UP)) {
-		//	if (viewProjection_.fovAngleY < XM_PI) {
-		//		viewProjection_.fovAngleY += angleSpeed;
-		//	}
-		//}else if (input_->PushKey(DIK_DOWN)) {
-		//	if (viewProjection_.fovAngleY > 0.05f) {
-		//		viewProjection_.fovAngleY -=angleSpeed;
-		//	}
-		//}
-		////行列の再計算
-		//viewProjection_.UpdateMatrix();
+		const float angleSpeed = 0.01f;
+		//上キーで視野角が広がる
+		if (input_->TriggerKey(DIK_SPACE)) {
+			if (viewProjection_.fovAngleY == XMConvertToRadians(50.0f)) {
+				viewProjection_.fovAngleY = XMConvertToRadians(20.0f);
+				isReticle = true;
+			}
+			else if (viewProjection_.fovAngleY == XMConvertToRadians(20.0f)) {
+				viewProjection_.fovAngleY = XMConvertToRadians(50.0f);
+				isReticle = false;
+			}
+
+		}
+		//行列の再計算
+		viewProjection_.UpdateMatrix();
 	}
 
 	//クリップ距離変更処理
@@ -287,17 +303,16 @@ void GameScene::Update() {
 	}*/
 
 
-	//debugText_->SetPos(50, 50);
-	//debugText_->Printf("eye(%f,%f,%f)",
-	//	viewProjection_.eye.x,
-	//	viewProjection_.eye.y,
-	//	viewProjection_.eye.z);
+	debugText_->SetPos(50, 50);
+	debugText_->Printf("target(%f,%f,%f)",
+		viewProjection_.target.x,
+		viewProjection_.target.y,
+		viewProjection_.target.z);
 
-	//debugText_->SetPos(50, 70);
-	//debugText_->Printf("target(%f,%f,%f)",
-	//	viewProjection_.target.x,
-	//	viewProjection_.target.y,
-	//	viewProjection_.target.z);
+	debugText_->SetPos(50, 70);
+	debugText_->Printf("fovAngleY(%f)",
+		XMConvertToRadians(viewProjection_.fovAngleY)
+	);
 
 	//debugText_->SetPos(50, 90);
 	//debugText_->Printf("up(%f,%f,%f)",
@@ -328,7 +343,7 @@ void GameScene::Update() {
 	//	worldTransforms_[1].translation_.x,
 	//	worldTransforms_[1].translation_.y,
 	//	worldTransforms_[1].translation_.z);
-
+	
 }
 
 void GameScene::Draw() {
@@ -366,18 +381,16 @@ void GameScene::Draw() {
 	}*/
 	for (int i = 0; i < 10; i++) {
 		for (int j = 0; j < 10; j++) {
-			for (int k = 0; k < 10; k++) {
-				model_->Draw(worldTransforms_[i][j][k], viewProjection_, textureHandle_);
-			}
+			model_->Draw(worldTransforms_[i][j], viewProjection_, textureHandle_);
 		}
 	}
 
-	for (int i = 0; i < 30; i++) {
-		//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
-		PrimitiveDrawer::GetInstance()->DrawLine3d(vector3X_[i], vector3X_2[i], colorX);
-		//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
-		PrimitiveDrawer::GetInstance()->DrawLine3d(vector3Z_[i], vector3Z_2[i], colorZ);
-	}
+	//for (int i = 0; i < 30; i++) {
+	//	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(vector3X_[i], vector3X_2[i], colorX);
+	//	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(vector3Z_[i], vector3Z_2[i], colorZ);
+	//}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
@@ -390,6 +403,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+	if (isReticle == true) {
+		sprite_->Draw();
+	}
 
 	// デバッグテキストの描画
 	debugText_->DrawAll(commandList);

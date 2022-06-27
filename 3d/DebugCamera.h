@@ -25,6 +25,12 @@ class DebugCamera {
 	/// </summary>
 	/// <returns>ビュープロジェクション</returns>
 	const ViewProjection& GetViewProjection() { return viewProjection_; }
+	const Matrix4& GetMatViewProjection() { return viewProjection_.matProjection; }
+	const Matrix4& GetMatView() { return matRot; }
+
+	float GetCameraUpX();
+	float GetCameraUpY();
+	float GetCameraUpZ();
 
   private:
 	// 入力クラスのポインタ
@@ -40,4 +46,6 @@ class DebugCamera {
 	ViewProjection viewProjection_;
 
 	void MultiplyMatrix(const Matrix4& matrix);
+
+	
 };

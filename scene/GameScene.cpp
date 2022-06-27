@@ -14,6 +14,7 @@ GameScene::GameScene() {}
 GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
+	delete player_;
 }
 
 void GameScene::Initialize() {
@@ -29,7 +30,7 @@ void GameScene::Initialize() {
 	model_ = Model::Create();
 
 	//カメラ視点座標を設定
-	viewProjection_.eye = { 0,20,-25 };
+	viewProjection_.eye = { 0,0,-50 };
 	////カメラの注視点座標を設定
 	//viewProjection_.target = { 10,0,0 };
 	////カメラ上方向ベクトルを設定（右上45度指定）
@@ -55,7 +56,7 @@ void GameScene::Initialize() {
 	//軸方向表示が参考するビュープロジェクションを指定する（アドレス渡し）
 	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
-	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection_);
+	PrimitiveDrawer::GetInstance()->SetViewProjection(&viewProjection_/*debugCamera_->GetViewProjection()*/);
 #pragma region ライン描画座標
 	//ライン描画座標X
 	for (int i = 0; i < 30; i++) {
@@ -71,10 +72,10 @@ void GameScene::Initialize() {
 	colorZ = { 0,0,255,1 };
 #pragma endregion
 
-	//乱数シード生成期
-	std::random_device seed_gen;
-	//メルセンヌ・ツイスターの乱数エンジン
-	std::mt19937_64 engine(seed_gen());
+	////乱数シード生成期
+	//std::random_device seed_gen;
+	////メルセンヌ・ツイスターの乱数エンジン
+	//std::mt19937_64 engine(seed_gen());
 	//ワールドトランスフォームの初期化
 	//for (WorldTransform& worldTransform : worldTransforms_) {
 	//	//ワールドトランスフォームの初期化
@@ -85,7 +86,6 @@ void GameScene::Initialize() {
 	//	std::uniform_real_distribution<float> rotaDistX(0, XM_PI);
 	//	std::uniform_real_distribution<float> rotaDistY(0, XM_PI);
 	//	std::uniform_real_distribution<float> rotaDistZ(0, XM_PI);
-
 	//	random.x = rotaDistX(engine);
 	//	random.y = rotaDistY(engine);
 	//	random.z = rotaDistZ(engine);
@@ -95,7 +95,7 @@ void GameScene::Initialize() {
 	//	std::uniform_real_distribution<float> transDistX(-10, 10);
 	//	std::uniform_real_distribution<float> transDistY(-10, 10);
 	//	std::uniform_real_distribution<float> transDistZ(-10, 10);
-
+	
 	//	random.x = transDistX(engine);
 	//	random.y = transDistY(engine);
 	//	random.z = transDistZ(engine);
@@ -105,31 +105,31 @@ void GameScene::Initialize() {
 	//	matrix.UpdataMatrix(worldTransform);
 	//}
 
-	//キャラクターの大本
-	worldTransforms_[PartID::kRoot].Initialize();
-	//脊髄
-	worldTransforms_[PartID::kSpine].Initialize();
-	worldTransforms_[PartID::kSpine].parent_ = &worldTransforms_[PartID::kRoot];
-	worldTransforms_[PartID::kSpine].translation_ = { 0.0f,0.0f,0.0f };
+	////キャラクターの大本
+	//worldTransforms_[PartID::kRoot].Initialize();
+	////脊髄
+	//worldTransforms_[PartID::kSpine].Initialize();
+	//worldTransforms_[PartID::kSpine].parent_ = &worldTransforms_[PartID::kRoot];
+	//worldTransforms_[PartID::kSpine].translation_ = { 0.0f,0.0f,0.0f };
 
-	matrix.UpdataMatrix(worldTransforms_[0]);
+	//matrix.UpdataMatrix(worldTransforms_[0]);
 
-	//上半身
-	worldTransforms_[PartID::kChest].Initialize();
-	worldTransforms_[PartID::kChest].parent_ = &worldTransforms_[PartID::kSpine];
-	worldTransforms_[PartID::kChest].translation_ = { 0.0f,0.0f,0.0f };
+	////上半身
+	//worldTransforms_[PartID::kChest].Initialize();
+	//worldTransforms_[PartID::kChest].parent_ = &worldTransforms_[PartID::kSpine];
+	//worldTransforms_[PartID::kChest].translation_ = { 0.0f,0.0f,0.0f };
 
-	worldTransforms_[PartID::kHead].Initialize();
-	worldTransforms_[PartID::kHead].parent_ = &worldTransforms_[PartID::kChest];
-	worldTransforms_[PartID::kHead].translation_ = { 0.0f,0.0f,3.0f };
+	//worldTransforms_[PartID::kHead].Initialize();
+	//worldTransforms_[PartID::kHead].parent_ = &worldTransforms_[PartID::kChest];
+	//worldTransforms_[PartID::kHead].translation_ = { 0.0f,0.0f,3.0f };
 
-	worldTransforms_[PartID::kArmL].Initialize();
-	worldTransforms_[PartID::kArmL].parent_ = &worldTransforms_[PartID::kChest];
-	worldTransforms_[PartID::kArmL].translation_ = { 3.0f,0.0f,0.0f };
+	//worldTransforms_[PartID::kArmL].Initialize();
+	//worldTransforms_[PartID::kArmL].parent_ = &worldTransforms_[PartID::kChest];
+	//worldTransforms_[PartID::kArmL].translation_ = { 3.0f,0.0f,0.0f };
 
-	worldTransforms_[PartID::kArmR].Initialize();
-	worldTransforms_[PartID::kArmR].parent_ = &worldTransforms_[PartID::kChest];
-	worldTransforms_[PartID::kArmR].translation_ = { -3.0f,0.0f,0.0f };
+	//worldTransforms_[PartID::kArmR].Initialize();
+	//worldTransforms_[PartID::kArmR].parent_ = &worldTransforms_[PartID::kChest];
+	//worldTransforms_[PartID::kArmR].translation_ = { -3.0f,0.0f,0.0f };
 
 
 	//下半身
@@ -145,12 +145,37 @@ void GameScene::Initialize() {
 	worldTransforms_[PartID::kLegR].parent_ = &worldTransforms_[PartID::kHip];
 	worldTransforms_[PartID::kLegR].translation_ = { -3.0f,-3.0f,0.0f };*/
 
+	//自キャラ生成
+	player_ = new Player();
+	//自キャラの初期化
+	player_->Initialize(model_,textureHandle_);
+
 	//false バイオ :: true カメラ視点
 	isCamera = false;
 }
 
 void GameScene::Update() {
-	debugCamera_->Update();
+#ifdef _DEBUG
+	if (input_->PushKey(DIK_0)) {
+		if (isDebugCamera == false)isDebugCamera = true;
+		else if (isDebugCamera == true)isDebugCamera = false;
+		
+	}
+
+	if (isDebugCamera) {
+		debugCamera_->Update();
+		viewProjection_.matView = debugCamera_->GetMatView();
+		viewProjection_.matProjection = debugCamera_->GetMatViewProjection();
+		viewProjection_.UpdateMatrix();
+	}
+	else {
+		viewProjection_.UpdateMatrix();
+	}
+#endif
+	
+	//自キャラ更新
+	player_->Update();
+
 #pragma region 視点注視点上方向
 	////視点移動処理
 	//{
@@ -191,7 +216,7 @@ void GameScene::Update() {
 	//	//行列の再計算
 	//	viewProjection_.UpdateMatrix();
 	//}
-	////上方向回転処理
+	//上方向回転処理
 	//{
 	//	//上方向の回転速さ[ラジアン/frame]
 	//	const float kUpRotSpeed = 0.05f;
@@ -203,7 +228,7 @@ void GameScene::Update() {
 	//		viewAngle = fmodf(viewAngle, XM_PI * 2.0f);
 	//	}
 	//	//上方向ベクトルを計算(半径1の演習場の座標)
-	//	viewProjection_.up = { cosf(viewAngle),sinf(viewAngle),0.0f };
+	//	viewProjection_.up = { sinf(viewAngle),0.0f,cosf(viewAngle) };
 	//	//行列の再計算
 	//	viewProjection_.UpdateMatrix();
 	//}
@@ -263,122 +288,122 @@ void GameScene::Update() {
 	Vector3 sideVec = { 0,0,0 };
 	float moveSopeed = 0.5f;
 
-	if (isCamera == false) {
-		//プレイヤーの正面ベクトル
-		resultVec.x = {
-		  cos(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.x
-		  + sin(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.z
-		};
+	//if (isCamera == false) {
+	//	//プレイヤーの正面ベクトル
+	//	resultVec.x = {
+	//	  cos(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.x
+	//	  + sin(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.z
+	//	};
 
-		resultVec.z = {
-		  -sin(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.x +
-		  cos(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.z
-		};
+	//	resultVec.z = {
+	//	  -sin(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.x +
+	//	  cos(worldTransforms_[PartID::kChest].rotation_.y) * frontVec.z
+	//	};
 
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_W)) {
-			move = { resultVec.x * moveSopeed, 0, resultVec.z * moveSopeed };
-		}
-		else if (input_->PushKey(DIK_S)) {
-			move = { -resultVec.x * moveSopeed, 0, -resultVec.z * moveSopeed };
-		}
+	//	//押した方向で移動ベクトルを変更
+	//	if (input_->PushKey(DIK_W)) {
+	//		move = { resultVec.x * moveSopeed, 0, resultVec.z * moveSopeed };
+	//	}
+	//	else if (input_->PushKey(DIK_S)) {
+	//		move = { -resultVec.x * moveSopeed, 0, -resultVec.z * moveSopeed };
+	//	}
 
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_A)) {
-			worldTransforms_[PartID::kChest].rotation_.y -= kChestRotSpeed;
-		}
-		else if (input_->PushKey(DIK_D)) {
-			worldTransforms_[PartID::kChest].rotation_.y += kChestRotSpeed;
-		}
-	}
-	else if (isCamera == true) {
-		//プレイヤーの正面ベクトル
-		resultVec = {
-			viewProjection_.target.x - viewProjection_.eye.x,
-			viewProjection_.target.y - viewProjection_.eye.y,
-			viewProjection_.target.z - viewProjection_.eye.z
-		};
-		resultVec.normalize();
+	//	//押した方向で移動ベクトルを変更
+	//	if (input_->PushKey(DIK_A)) {
+	//		worldTransforms_[PartID::kChest].rotation_.y -= kChestRotSpeed;
+	//	}
+	//	else if (input_->PushKey(DIK_D)) {
+	//		worldTransforms_[PartID::kChest].rotation_.y += kChestRotSpeed;
+	//	}
+	//}
+	//else if (isCamera == true) {
+	//	//プレイヤーの正面ベクトル
+	//	resultVec = {
+	//		viewProjection_.target.x - viewProjection_.eye.x,
+	//		viewProjection_.target.y - viewProjection_.eye.y,
+	//		viewProjection_.target.z - viewProjection_.eye.z
+	//	};
+	//	resultVec.normalize();
 
-		sideVec = upVec.cross(resultVec);
-		sideVec.normalize();
+	//	sideVec = upVec.cross(resultVec);
+	//	sideVec.normalize();
 
 
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_W)) {
-			move = { resultVec.x * moveSopeed, 0, resultVec.z * moveSopeed };
-		}
-		else if (input_->PushKey(DIK_S)) {
-			move = { -resultVec.x * moveSopeed, 0, -resultVec.z * moveSopeed };
-		}
+	//	//押した方向で移動ベクトルを変更
+	//	if (input_->PushKey(DIK_W)) {
+	//		move = { resultVec.x * moveSopeed, 0, resultVec.z * moveSopeed };
+	//	}
+	//	 if (input_->PushKey(DIK_S)) {
+	//		move = { -resultVec.x * moveSopeed, 0, -resultVec.z * moveSopeed };
+	//	}
 
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_A)) {
-			move = { -sideVec.x * moveSopeed,-sideVec.y * moveSopeed,-sideVec.z * moveSopeed };
-		}
-		else if (input_->PushKey(DIK_D)) {
-			move = { sideVec.x * moveSopeed,sideVec.y * moveSopeed,sideVec.z * moveSopeed };
-		}
+	//	//押した方向で移動ベクトルを変更
+	//	if (input_->PushKey(DIK_A)) {
+	//		move = { -sideVec.x * moveSopeed,-sideVec.y * moveSopeed,-sideVec.z * moveSopeed };
+	//	}
+	//	if (input_->PushKey(DIK_D)) {
+	//		move = { sideVec.x * moveSopeed,sideVec.y * moveSopeed,sideVec.z * moveSopeed };
+	//	}
 
-	}
-	//大本から更新していく
-	matrix.UpdataMatrix(worldTransforms_[PartID::kRoot]);
-	matrix.UpdataMatrix(worldTransforms_[PartID::kSpine]);
-	for (int i = PartID::kChest; i <= PartID::kArmR; i++) {
-		matrix.UpdataMatrix(worldTransforms_[i]);
-	}
+	//}
+	////大本から更新していく
+	//matrix.UpdataMatrix(worldTransforms_[PartID::kRoot]);
+	//matrix.UpdataMatrix(worldTransforms_[PartID::kSpine]);
+	//for (int i = PartID::kChest; i <= PartID::kArmR; i++) {
+	//	matrix.UpdataMatrix(worldTransforms_[i]);
+	//}
 
-	//注視点移動
-	worldTransforms_[PartID::kRoot].translation_.x += move.x;
-	worldTransforms_[PartID::kRoot].translation_.y += move.y;
-	worldTransforms_[PartID::kRoot].translation_.z += move.z;
+	////注視点移動
+	//worldTransforms_[PartID::kRoot].translation_.x += move.x;
+	//worldTransforms_[PartID::kRoot].translation_.y += move.y;
+	//worldTransforms_[PartID::kRoot].translation_.z += move.z;
 #pragma endregion
 	
 	
-	//カメラ移動
-	XMFLOAT3 cameraMove = {0,0,0};
-	
-	float cameraDistance = 30;
-	if (isCamera == false) {
-		//カメラ注視点座標指定
-		resultTarget = worldTransforms_[PartID::kRoot].translation_;
+	////カメラ移動
+	//XMFLOAT3 cameraMove = {0,0,0};
+	//
+	//float cameraDistance = 30;
+	//if (isCamera == false) {
+	//	//カメラ注視点座標指定
+	//	resultTarget = worldTransforms_[PartID::kRoot].translation_;
 
-		resultEye.x = -resultVec.x * cameraDistance + resultTarget.x;
-		resultEye.y = 20.0f;
-		resultEye.z = -resultVec.z * cameraDistance + resultTarget.z;
+	//	resultEye.x = -resultVec.x * cameraDistance + resultTarget.x;
+	//	resultEye.y = 20.0f;
+	//	resultEye.z = -resultVec.z * cameraDistance + resultTarget.z;
 
-		//カメラ視点座標を設定
-		viewProjection_.eye = { resultEye.x, resultEye.y,resultEye.z };
-		//カメラ注視点座標を設定
-		viewProjection_.target = { resultTarget.x, resultTarget.y, resultTarget.z };
-	}
-	else if (isCamera == true) {
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_UP)) {
-			cameraMove = { 0,0,moveSopeed };
-		}
-		 if (input_->PushKey(DIK_DOWN)) {
-			cameraMove = { 0,0,-moveSopeed };
-		}
+	//	//カメラ視点座標を設定
+	//	viewProjection_.eye = { resultEye.x, resultEye.y,resultEye.z };
+	//	//カメラ注視点座標を設定
+	//	viewProjection_.target = { resultTarget.x, resultTarget.y, resultTarget.z };
+	//}
+	//else if (isCamera == true) {
+	//	//押した方向で移動ベクトルを変更
+	//	if (input_->PushKey(DIK_UP)) {
+	//		cameraMove = { 0,0,moveSopeed };
+	//	}
+	//	 if (input_->PushKey(DIK_DOWN)) {
+	//		cameraMove = { 0,0,-moveSopeed };
+	//	}
 
-		//押した方向で移動ベクトルを変更
-		if (input_->PushKey(DIK_LEFT)) {
-			cameraMove = { -moveSopeed,0,0 };
-		}
-		 if (input_->PushKey(DIK_RIGHT)) {
-			cameraMove = { moveSopeed,0,0 };
-		}
-		//カメラ視点座標を設定
-		viewProjection_.eye += { cameraMove.x, cameraMove.y,cameraMove.z };
-	}
-	
-	//行列の再計算
-	viewProjection_.UpdateMatrix();
+	//	//押した方向で移動ベクトルを変更
+	//	if (input_->PushKey(DIK_LEFT)) {
+	//		cameraMove = { -moveSopeed,0,0 };
+	//	}
+	//	 if (input_->PushKey(DIK_RIGHT)) {
+	//		cameraMove = { moveSopeed,0,0 };
+	//	}
+	//	//カメラ視点座標を設定
+	//	viewProjection_.eye += { cameraMove.x, cameraMove.y,cameraMove.z };
+	//}
+	//
+	////行列の再計算
+	//viewProjection_.UpdateMatrix();
 
-	//大元から更新していく
-	for (int i = 0; i <= PartID::kArmR; i++) {
-		matrix.UpdataMatrix(worldTransforms_[i]);
-	}
+	////大元から更新していく
+	//for (int i = 0; i <= PartID::kArmR; i++) {
+	//	matrix.UpdataMatrix(worldTransforms_[i]);
+	//}
 
 
 	//debugText_->SetPos(50, 50);
@@ -399,9 +424,9 @@ void GameScene::Update() {
 	//	viewProjection_.up.y,
 	//	viewProjection_.up.z);
 
-	debugText_->SetPos(50, 110);
+	/*debugText_->SetPos(50, 110);
 	debugText_->Printf("target.x.y.z : x:%f y:%f z:%f",
-		viewProjection_.target.x,
+		-sin(worldTransforms_[PartID::kChest].rotation_.y),
 		viewProjection_.target.y,
 		viewProjection_.target.z);
 
@@ -412,14 +437,14 @@ void GameScene::Update() {
 		viewProjection_.eye.z);
 
 	debugText_->SetPos(50, 150);
-	debugText_->Printf("translation_[0].x.y.z : x:%f y:%f z:%f",
-		worldTransforms_[0].translation_.x,
-		worldTransforms_[0].translation_.y,
-		worldTransforms_[0].translation_.z);
+	debugText_->Printf("debugCamera_UP.x.y.z : x:%f y:%f z:%f",
+		debugCamera_->GetCameraUpX(),
+		debugCamera_->GetCameraUpY(),
+		debugCamera_->GetCameraUpZ());
 
 	debugText_->SetPos(50, 170);
 	debugText_->Printf("%d",
-		isCamera);
+		isCamera);*/
 
 }
 
@@ -453,16 +478,18 @@ void GameScene::Draw() {
 	/*for (WorldTransform& worldTransform : worldTransforms_) {
 		model_->Draw(worldTransform, viewProjection_, textureHandle_);
 	}*/
-	for (int i = 2; i <= PartID::kArmR; i++) {
-		model_->Draw(worldTransforms_[i], viewProjection_, textureHandle_);
-	}
+	//for (int i = 2; i <= PartID::kArmR; i++) {
+	//	model_->Draw(worldTransforms_[i], viewProjection_/*debugCamera_->GetViewProjection()*/, textureHandle_);
+	//}
 
-	for (int i = 0; i < 30; i++) {
-		//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
-		PrimitiveDrawer::GetInstance()->DrawLine3d(vector3X_[i], vector3X_2[i], colorX);
-		//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
-		PrimitiveDrawer::GetInstance()->DrawLine3d(vector3Z_[i], vector3Z_2[i], colorZ);
-	}
+	player_->Draw(viewProjection_);
+
+	//for (int i = 0; i < 30; i++) {
+	//	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(vector3X_[i], vector3X_2[i], colorX);
+	//	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）
+	//	PrimitiveDrawer::GetInstance()->DrawLine3d(vector3Z_[i], vector3Z_2[i], colorZ);
+	//}
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

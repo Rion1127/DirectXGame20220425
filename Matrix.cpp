@@ -22,10 +22,14 @@ Matrix::Matrix()
 void Matrix::UnitMatrix(Matrix4& m) {
 	Matrix4 unitMatrix;
 
-	unitMatrix.m[0][0] = 1.0f;
-	unitMatrix.m[1][1] = 1.0f;
-	unitMatrix.m[2][2] = 1.0f;
-	unitMatrix.m[3][3] = 1.0f;
+	for (int i = 0; i < 4; i++) {
+		unitMatrix.m[i][i] = 1.0f;
+		for (int j = 0; j < 4; j++) {
+			if (i != j) {
+				unitMatrix.m[i][j] = 0.0f;
+			}
+		}
+	}
 
 	m = unitMatrix;
 }

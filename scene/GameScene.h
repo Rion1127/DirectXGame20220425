@@ -13,6 +13,8 @@
 
 #include "Matrix.h"
 
+#include "Player.h"
+
 /// <summary>
 /// ゲームシーン
 /// </summary>
@@ -44,18 +46,6 @@ class GameScene {
 	/// </summary>
 	void Draw();
 
-	enum PartID {
-		kRoot,	//大本
-		kSpine,	//脊髄
-		kChest,	//胸
-		kHead,	//頭
-		kArmL,	//左腕
-		kArmR,	//右腕
-		kHip,	//尻
-		kLegL,	//左足
-		kLegR,	//右足
-	};
-
   private: // メンバ変数
 	DirectXCommon* dxCommon_ = nullptr;
 	Input* input_ = nullptr;
@@ -67,11 +57,14 @@ class GameScene {
 	//3Dモデル
 	Model* model_ = nullptr;
 	//ワールドトランスフォーム
-	WorldTransform worldTransforms_[100];
+	/*WorldTransform worldTransforms_[100];*/
+	Player* player_ = nullptr;
+
 	//ビュープロジェクション
 	ViewProjection viewProjection_;
 	//デバッグカメラ
 	DebugCamera* debugCamera_ = nullptr;
+	bool isDebugCamera = false;
 	//カメラ上方向の角度
 	float viewAngle = 0.0f;
 

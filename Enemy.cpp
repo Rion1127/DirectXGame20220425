@@ -21,18 +21,13 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle)
 
 }
 
+
+
 void Enemy::Update()
 {
-	switch(phase_) {
-	case Phase::Approach:
-	default:
-		phase_Approach();
-		break;
-	case Phase::Leave:
-		phase_Leave();
-		break;
-	}
-
+	//メンバ関数ポインタに入っている関数を呼び出す
+	(this->*spFuncTable[static_cast<size_t>(phase_)])();
+	
 	matrix.UpdateMatrix(worldTransform_);
 }
 
@@ -40,6 +35,19 @@ void Enemy::Draw(const ViewProjection& viewProjection)
 {
 	//モデルの描画
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+
+	//デバッグ表示
+	debugText_->SetPos(50, 190);
+	debugText_->Printf(
+		"enemyPos:(%f,%f,%f)",
+		worldTransform_.translation_.x,
+		worldTransform_.translation_.y,
+		worldTransform_.translation_.z);
+
+	debugText_->SetPos(50, 210);
+	debugText_->Printf(
+		"Phase:%d",
+		phase_);
 }
 
 void Enemy::phase_Approach()
@@ -59,3 +67,8 @@ void Enemy::phase_Leave()
 	//移動（ベクトルを加算）
 	worldTransform_.translation_ -= speed;
 }
+
+void (Enemy::* Enemy::spFuncTable[])() = {
+	&Enemy::phase_Approach,
+	&Enemy::phase_Leave
+};

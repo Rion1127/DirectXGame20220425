@@ -37,9 +37,13 @@ private:
 
 	//フェーズ
 	Phase phase_ = Phase::Approach;
+	
 	Vector3 speed = { 0,0,-0.1f };
 
 	void phase_Approach();
 	void phase_Leave();
+
+	//メンバ関数ポインタのテーブル
+	static void (Enemy::* spFuncTable[])();
 	
 };

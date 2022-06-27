@@ -28,5 +28,18 @@ private:
 	Input* input_ = nullptr;
 
 	DebugText* debugText_ = nullptr;
+
+	//行動フェーズ
+	enum class Phase {
+		Approach,	//接近する
+		Leave,		//離脱する
+	};
+
+	//フェーズ
+	Phase phase_ = Phase::Approach;
+	Vector3 speed = { 0,0,-0.1f };
+
+	void phase_Approach();
+	void phase_Leave();
 	
 };

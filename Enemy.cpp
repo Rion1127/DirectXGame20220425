@@ -23,9 +23,15 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle)
 
 void Enemy::Update()
 {
-	Vector3 speed = { 0,0,-0.1f };
-	worldTransform_.translation_ += speed;
-
+	switch(phase_) {
+	case Phase::Approach:
+	default:
+		phase_Approach();
+		break;
+	case Phase::Leave:
+		phase_Leave();
+		break;
+	}
 
 	matrix.UpdateMatrix(worldTransform_);
 }
@@ -34,4 +40,22 @@ void Enemy::Draw(const ViewProjection& viewProjection)
 {
 	//モデルの描画
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+}
+
+void Enemy::phase_Approach()
+{
+	speed = { 0,0,-0.3f };
+	//移動（ベクトルを加算）
+	worldTransform_.translation_ += speed;
+	//既定の位置に到達したら離脱
+	if (worldTransform_.translation_.z < 0.0f) {
+		phase_ = Phase::Leave;
+	}
+}
+
+void Enemy::phase_Leave()
+{
+	speed = { 0.3f,0,0 };
+	//移動（ベクトルを加算）
+	worldTransform_.translation_ -= speed;
 }

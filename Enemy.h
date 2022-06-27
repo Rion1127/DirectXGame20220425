@@ -12,7 +12,7 @@ class Enemy
 {
 public:
 	//‰Šú‰»
-	void Initialize(Model* model);
+	void Initialize(Model* model, uint32_t textureHandle);
 	//XV
 	void Update();
 	//•`‰æ
@@ -24,5 +24,9 @@ private:
 	Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 
+	//“ü—Í
+	Input* input_ = nullptr;
+
+	DebugText* debugText_ = nullptr;
 	
 };

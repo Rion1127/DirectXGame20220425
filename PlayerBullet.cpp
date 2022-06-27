@@ -5,7 +5,7 @@ PlayerBullet::~PlayerBullet()
 
 }
 
-void PlayerBullet::Initialize(Model* model, const XMFLOAT3& position, const Vector3& velocity)
+void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vector3& velocity)
 {
 	assert(model);
 

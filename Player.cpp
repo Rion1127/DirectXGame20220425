@@ -6,8 +6,8 @@ void Player::Initialize(Model* model, uint32_t textureHandle)
 	assert(model);
 
 	//ファイル名を指定してテクスチャを読み込む
-	textureHandle_ = TextureManager::Load("mario.jpg");
-	model_ = Model::Create();
+	textureHandle_ = textureHandle;
+	model_ = model;
 
 	//シングルトンインスタンスを取得する
 	input_ = Input::GetInstance();

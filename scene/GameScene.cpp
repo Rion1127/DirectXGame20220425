@@ -26,8 +26,10 @@ void GameScene::Initialize() {
 
 	//ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("mario.jpg");
+	enemyTextureHandle_ = TextureManager::Load("enemy.jpg");
 	//3Dモデルの生成
 	model_ = Model::Create();
+	EnemyModel = Model::Create();
 
 	//カメラ視点座標を設定
 	viewProjection_.eye = { 0,0,-50 };
@@ -150,8 +152,8 @@ void GameScene::Initialize() {
 	//自キャラの初期化
 	player_->Initialize(model_,textureHandle_);
 
-	//enemy_ = new Enemy();
-	//enemy_->Initialize();
+	enemy_ = new Enemy();
+	enemy_->Initialize(EnemyModel, enemyTextureHandle_);
 
 	//false バイオ :: true カメラ視点
 	isCamera = false;
@@ -178,7 +180,7 @@ void GameScene::Update() {
 	
 	//自キャラ更新
 	player_->Update();
-	//enemy_->Update();
+	enemy_->Update();
 
 #pragma region 視点注視点上方向
 	////視点移動処理
@@ -487,7 +489,7 @@ void GameScene::Draw() {
 	//}
 
 	player_->Draw(viewProjection_);
-	//enemy_->Draw(viewProjection_);
+	enemy_->Draw(viewProjection_);
 
 	//for (int i = 0; i < 30; i++) {
 	//	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）

@@ -1,6 +1,4 @@
 
-
-
 #include "Player.h"
 
 void Player::Initialize(Model* model, uint32_t textureHandle)
@@ -106,6 +104,12 @@ void Player::Rotation()
 		worldTransform_.rotation_.y += rotaSpeed;
 	}
 
+	if (input_->PushKey(DIK_UP)) {
+		worldTransform_.scale_.y += rotaSpeed;
+	}
+	else if (input_->PushKey(DIK_DOWN)) {
+		worldTransform_.scale_.y -= rotaSpeed;
+	}
 }
 
 void Player::Attack()

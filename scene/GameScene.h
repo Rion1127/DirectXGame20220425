@@ -14,6 +14,7 @@
 #include "Matrix.h"
 
 #include "Player.h"
+#include "Enemy.h"
 
 /// <summary>
 /// ゲームシーン
@@ -54,11 +55,15 @@ class GameScene {
 
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0;
+	//テクスチャハンドル
+	uint32_t enemyTextureHandle_ = 0;
 	//3Dモデル
 	Model* model_ = nullptr;
+	Model* EnemyModel = nullptr;
 	//ワールドトランスフォーム
 	/*WorldTransform worldTransforms_[100];*/
 	Player* player_ = nullptr;
+	Enemy* enemy_ = nullptr;
 
 	//ビュープロジェクション
 	ViewProjection viewProjection_;

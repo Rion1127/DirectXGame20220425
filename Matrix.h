@@ -1,6 +1,7 @@
 #pragma once
 #include "WorldTransform.h"
 
+
 struct MatResult {
 	Matrix4 Scale;
 	Matrix4 Rot;

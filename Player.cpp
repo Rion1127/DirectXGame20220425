@@ -15,16 +15,16 @@ void Player::Initialize(Model* model, uint32_t textureHandle)
 
 	worldTransform_.Initialize();
 
-	matrix.ScaleChange(worldTransform_, 1, 1, 1, 1);
+	matrix.ScaleChange(worldTransform_, 1, 1, 10.0f, 1);
 	matrix.RotaChange(worldTransform_, 0, 0, 0);
-	matrix.ChangeTranslation(worldTransform_, 0, 0, 0);
+	matrix.ChangeTranslation(worldTransform_, -5, 0, 0);
 	matrix.UpdateMatrix(worldTransform_);
 }
 
 void Player::Update()
 {
 	Move();
-	Rotation();
+	//Rotation();
 	Attack();
 	//弾更新
 	for (std::unique_ptr<PlayerBullet>& bullet : bullets_) {
@@ -46,15 +46,15 @@ void Player::Draw(ViewProjection viewProjection_)
 	}
 
 	//デバッグ表示
-	debugText_->SetPos(50, 150);
+	debugText_->SetPos(50,260);
 	debugText_->Printf(
 		"player:(%f,%f,%f)", worldTransform_/*[PartID::Root]*/.translation_.x,
 		worldTransform_/*[PartID::Root]*/.translation_.y,
 		worldTransform_/*[PartID::Root]*/.translation_.z);
 	//デバッグ表示
-	debugText_->SetPos(50, 170);
-	debugText_->Printf(
-		"player:(%f)", worldTransform_/*[PartID::Root]*/.rotation_.y);
+	//debugText_->SetPos(50, 170);
+	//debugText_->Printf(
+	//	"player:(%f)", worldTransform_/*[PartID::Root]*/.rotation_.y);
 }
 
 void Player::Move()
@@ -77,6 +77,13 @@ void Player::Move()
 	}
 	else if (input_->PushKey(DIK_S)) {
 		move = { 0,-playerSpeed,0 };
+	}
+
+	if (input_->PushKey(DIK_UP)) {
+		move = { 0,0,playerSpeed };
+	}
+	else if (input_->PushKey(DIK_DOWN)) {
+		move = { 0,0,-playerSpeed };
 	}
 
 	//注視点移動（ベクトルの加算）

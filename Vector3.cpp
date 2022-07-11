@@ -1,18 +1,29 @@
 #include "Vector3.h"
-#include <cmath>
+#include <cmath>    // sqrt
 
-float Vector3::length() {
+Vector3::Vector3() : x(0), y(0), z(0) {}
+
+Vector3::Vector3(float x, float y, float z) : x(x), y(y), z(z) {}
+// ベクトルのノルム(長さ)を求める
+float Vector3::length() const
+{
 	return sqrt(x * x + y * y + z * z);
-};
-Vector3& Vector3::normalize() {
+}
+// ベクトルを正規化
+Vector3& Vector3::normalize()
+{
 	float len = length();
 	if (len != 0)
 	{
 		return *this /= len;
 	}
 	return *this;
-};
-
+}
+// 内積を求める
+float Vector3::dot(const Vector3& v) const
+{
+	return x * v.x + y * v.y + z * v.z;
+}
 // 外積を求める
 Vector3 Vector3::cross(const Vector3& v) const
 {
@@ -22,10 +33,103 @@ Vector3 Vector3::cross(const Vector3& v) const
 		x * v.y - y * v.x
 	);
 }
-
-void Vector3::AAA(const Matrix4& v)
+// 単項演算子オーバーロード
+//単項演算子+を使えるようにする
+Vector3 Vector3::operator+() const
 {
-	x = (x * v.m[0][0]) + (y * v.m[1][0]) + (z * v.m[2][0]);
-	y = (x * v.m[0][1]) + (y * v.m[1][1]) + (z * v.m[2][1]);
-	z = (x * v.m[0][2]) + (y * v.m[1][2]) + (z * v.m[2][2]);
+	return *this;
+}
+//	〃	　-を使えるようにする
+Vector3 Vector3::operator-() const
+{
+	return Vector3(-x, -y, -z);
+}
+
+Vector3 Vector3::operator*(Vector3 v)
+{
+	x *= v.x;
+	y *= v.y;
+	z *= v.z;
+	return *this;
+}
+
+// 代入演算子オーバーロード
+//+=を使用できるようにする
+Vector3& Vector3::operator+=(const Vector3& v)
+{
+	x += v.x;
+	y += v.y;
+	z += v.z;
+	return *this;
+}
+//-=を使用できるようにする
+Vector3& Vector3::operator-=(const Vector3& v)
+{
+	x -= v.x;
+	y -= v.y;
+	z -= v.z;
+	return *this;
+}
+//ベクトルをS倍にする
+Vector3& Vector3::operator*=(float s)
+{
+	x *= s;
+	y *= s;
+	z *= s;
+	return *this;
+}
+//ベクトルを1/S倍にする
+Vector3& Vector3::operator/=(float s)
+{
+	x /= s;
+	y /= s;
+	z /= s;
+	return *this;
+}
+
+Vector3& Vector3::operator+=(const Vector2& v)
+{
+	x += v.x;
+	y += v.y;
+
+	return *this;
+}
+
+Vector3& Vector3::operator-=(const Vector2& v)
+{
+	x -= v.x;
+	y -= v.y;
+
+	return *this;
+}
+
+//2項演算子オーバーロード
+//※いろんな引数のパターンに対応(引数の順序)するため、以下のように準備している
+const Vector3 operator+(const Vector3& v1, const Vector3& v2)
+{
+	Vector3 temp(v1);
+	return temp += v2;
+}
+
+const Vector3 operator-(const Vector3& v1, const Vector3& v2)
+{
+	Vector3 temp(v1);
+	return temp -= v2;
+}
+
+const Vector3 operator*(const Vector3& v, float s)
+{
+	Vector3 temp(v);
+	return temp *= s;
+}
+
+const Vector3 operator*(float s, const Vector3& v)
+{
+	return v * s;
+}
+
+const Vector3 operator/(const Vector3& v, float s)
+{
+	Vector3 temp(v);
+	return temp /= s;
 }

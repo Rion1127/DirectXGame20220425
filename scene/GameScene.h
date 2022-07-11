@@ -61,9 +61,9 @@ class GameScene {
 	Model* model_ = nullptr;
 	Model* EnemyModel = nullptr;
 	//ワールドトランスフォーム
-	/*WorldTransform worldTransforms_[100];*/
+	WorldTransform worldTransforms_;
 	Player* player_ = nullptr;
-	Enemy* enemy_ = nullptr;
+	
 
 	//ビュープロジェクション
 	ViewProjection viewProjection_;

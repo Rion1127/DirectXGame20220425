@@ -19,7 +19,6 @@ public:
 	//•`‰æ
 	void Draw(ViewProjection viewProjection_);
 
-private:
 	void Move();
 	void Rotation();
 	void Attack();
@@ -51,5 +50,6 @@ private:
 
 	//’e
 	std::list<std::unique_ptr<PlayerBullet>> bullets_;
+private:
 };
 

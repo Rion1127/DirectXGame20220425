@@ -15,7 +15,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle)
 
 	worldTransform_.Initialize();
 
-	matrix.ScaleChange(worldTransform_, 1, 1, 10.0f, 1);
+	matrix.ScaleChange(worldTransform_, 0.1f, 0.1f, 5.0f, 1);
 	matrix.RotaChange(worldTransform_, 0, 0, 0);
 	matrix.ChangeTranslation(worldTransform_, -5, 0, 0);
 	matrix.UpdateMatrix(worldTransform_);
@@ -46,7 +46,7 @@ void Player::Draw(ViewProjection viewProjection_)
 	}
 
 	//デバッグ表示
-	debugText_->SetPos(50,260);
+	debugText_->SetPos(50,300);
 	debugText_->Printf(
 		"player:(%f,%f,%f)", worldTransform_/*[PartID::Root]*/.translation_.x,
 		worldTransform_/*[PartID::Root]*/.translation_.y,

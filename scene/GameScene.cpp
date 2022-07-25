@@ -98,7 +98,7 @@ void GameScene::Initialize() {
 	//	std::uniform_real_distribution<float> transDistX(-10, 10);
 	//	std::uniform_real_distribution<float> transDistY(-10, 10);
 	//	std::uniform_real_distribution<float> transDistZ(-10, 10);
-	
+
 	//	random.x = transDistX(engine);
 	//	random.y = transDistY(engine);
 	//	random.z = transDistZ(engine);
@@ -151,12 +151,12 @@ void GameScene::Initialize() {
 	//自キャラ生成
 	player_ = new Player();
 	//自キャラの初期化
-	player_->Initialize(model_,textureHandle_);
+	player_->Initialize(model_, textureHandle_);
 
 	worldTransforms_.Initialize();
 	matrix.ScaleChange(worldTransforms_, 1, 1, 1, 1);
 	matrix.RotaChange(worldTransforms_, 0, 0, 0);
-	matrix.ChangeTranslation(worldTransforms_,0, 0, 0);
+	matrix.ChangeTranslation(worldTransforms_, 0, 0, 0);
 	matrix.UpdateMatrix(worldTransforms_);
 
 	//false バイオ :: true カメラ視点
@@ -168,7 +168,7 @@ void GameScene::Update() {
 	if (input_->PushKey(DIK_0)) {
 		if (isDebugCamera == false)isDebugCamera = true;
 		else if (isDebugCamera == true)isDebugCamera = false;
-		
+
 	}
 
 	if (isDebugCamera) {
@@ -185,15 +185,17 @@ void GameScene::Update() {
 		if (isCamera == false)isCamera = true;
 		else if (isCamera == true)isCamera = false;
 	}
+
+	debugCamera_->Update();
 	//自キャラ更新
 	player_->Update();
-	
-	
+
+
 
 
 
 	//レイの当たり判定
-	
+
 	//ワールド座標を代入
 	Vector3 objPos;
 	Vector3 rayPos;
@@ -205,40 +207,57 @@ void GameScene::Update() {
 	rayStart = {
 		player_->worldTransform_.translation_.x,
 		player_->worldTransform_.translation_.y,
-		player_->worldTransform_.translation_.z + 5.0f,
+		player_->worldTransform_.translation_.z - 5.0f,
 	};
 
 	rayEnd = {
 		player_->worldTransform_.translation_.x,
 		player_->worldTransform_.translation_.y,
-		player_->worldTransform_.translation_.z - 5.0f,
+		player_->worldTransform_.translation_.z + 5.0f,
 	};
 	//始点と終点からレイのベクトル(a→)を求める
 	Vector3 rayVec;
 	rayVec = rayEnd - rayStart;
+	float raySize;
+	raySize = rayVec.length();
 	//正規化(a→N)
 	rayVec.normalize();
 	//レイとオブジェクトのベクトル(b→)を求める
+	// レイの始点とオブジェクトへのベクトル(b→)を求める
 	Vector3 ABVec;
 	ABVec = {
-		worldTransforms_.translation_.x - player_->worldTransform_.translation_.x,
-		worldTransforms_.translation_.y - player_->worldTransform_.translation_.y,
-		worldTransforms_.translation_.z - player_->worldTransform_.translation_.z
+		worldTransforms_.translation_.x - rayStart.x,
+		worldTransforms_.translation_.y - rayStart.y,
+		worldTransforms_.translation_.z - rayStart.z
 	};
 	//b→・a→N をray2ObjLengthに格納
-	Vector3 ray2ObjLength;
-	ray2ObjLength = ABVec.cross(rayVec);
+	float ray2ObjectLength = rayVec.dot(ABVec);
+
 	//Qを求める a→N * b→・a→N + P
 	Vector3 Q;
-	Q = rayVec * ABVec.cross(rayVec) + rayPos;
+	//Q = rayVec * ABVec.dot(rayVec) + rayPos;
+	Q = rayVec * ray2ObjectLength + rayStart;
 	//オブジェクトからレイの垂線(obj-Q)を求める
 	Vector3 line;
 	line = objPos - Q;
 	//垂線の長さを求める
 	line.length();
-	
+
 	//垂線の長さが半径+半径より短ければ当たってる
 	bool isHit = false;
+	if (line.length() <= 1) {
+		if (raySize >= ray2ObjectLength) {
+			isHit = true;
+		}
+	}
+
+	if (ray2ObjectLength <= 0) {
+		isHit = false;
+	}
+
+
+
+
 
 
 
@@ -267,12 +286,12 @@ void GameScene::Update() {
 		ABVec.x,
 		ABVec.y,
 		ABVec.z);
-	debugText_->SetPos(50, 130);
+	/*debugText_->SetPos(50, 130);
 	debugText_->Printf(
 		"ray2ObjLength:%f,%f,%f",
 		ray2ObjLength.x,
 		ray2ObjLength.y,
-		ray2ObjLength.z);
+		ray2ObjLength.z);*/
 	debugText_->SetPos(50, 150);
 	debugText_->Printf(
 		"Q:%f,%f,%f",
@@ -285,12 +304,22 @@ void GameScene::Update() {
 		line.x,
 		line.y,
 		line.z);
-	/*debugText_->SetPos(50, 190);
+
+	debugText_->SetPos(50, 190);
 	debugText_->Printf(
-		"lineLength:%f,%f,%f",
-		lineLength.x,
-		lineLength.y,
-		lineLength.z);*/
+		"line.len:%f", line.length());
+	debugText_->SetPos(50, 210);
+	debugText_->Printf(
+		"isHit:%d",
+		isHit);
+	debugText_->SetPos(50, 230);
+	debugText_->Printf(
+		"raySize:%f",
+		raySize);
+	debugText_->SetPos(50, 250);
+	debugText_->Printf(
+		"ray2ObjectLength:%f",
+		ray2ObjectLength);
 
 }
 
@@ -328,8 +357,8 @@ void GameScene::Draw() {
 	//	model_->Draw(worldTransforms_[i], viewProjection_/*debugCamera_->GetViewProjection()*/, textureHandle_);
 	//}
 
-	player_->Draw(viewProjection_);
-	model_->Draw(worldTransforms_, viewProjection_, textureHandle_);
+	player_->Draw(debugCamera_->GetViewProjection());
+	model_->Draw(worldTransforms_, /*viewProjection_*/debugCamera_->GetViewProjection(), textureHandle_);
 
 	//for (int i = 0; i < 30; i++) {
 	//	//ライン描画が参照するビュープロジェクションを指定する（アドレス渡し）

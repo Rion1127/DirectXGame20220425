@@ -154,6 +154,7 @@ void GameScene::Initialize() {
 
 	enemy_ = new Enemy();
 	enemy_->Initialize(EnemyModel, enemyTextureHandle_);
+	enemy_->SetPlayer(player_);
 
 	//false バイオ :: true カメラ視点
 	isCamera = false;

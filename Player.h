@@ -16,6 +16,8 @@ public:
 	void Initialize(Model* model,uint32_t textureHandle);
 	//更新
 	void Update();
+	//ワールド座標を取得
+	Vector3 GetWorldPosition();
 	//描画
 	void Draw(ViewProjection viewProjection_);
 

@@ -1,4 +1,16 @@
+#include "Matrix.h"
+#include <cassert>
+#include "Model.h"
+#include "Input.h"
+#include "Debugtext.h"
+#include <memory>
+#include <list>
 #include "Enemy.h"
+
+Enemy::Enemy()
+{
+	
+}
 
 void Enemy::Initialize(Model* model, uint32_t textureHandle)
 {
@@ -19,6 +31,10 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle)
 	matrix.ChangeTranslation(worldTransform_, 0, 3, 50);
 	matrix.UpdateMatrix(worldTransform_);
 
+
+	//Shot();
+
+	phese_ApproachIni();
 }
 
 
@@ -27,14 +43,69 @@ void Enemy::Update()
 {
 	//メンバ関数ポインタに入っている関数を呼び出す
 	(this->*spFuncTable[static_cast<size_t>(phase_)])();
-	
+
+	//弾更新
+	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) {
+		bullet->Update();
+	}
+
 	matrix.UpdateMatrix(worldTransform_);
+}
+
+void Enemy::Shot()
+{
+	////弾の速度
+	//const float bulletSpeed = 1.0f;
+	//Vector3 velocity(0, 0, bulletSpeed);
+	//Vector3 resultVec(0, 0, 0);
+	//Vector3 frontVec(0, 0, 1);
+
+	////プレイヤーの正面ベクトル
+	//resultVec.x = {
+	//  cos(worldTransform_.rotation_.y) * frontVec.x
+	//  + sin(worldTransform_.rotation_.y) * frontVec.z
+	//};
+	//resultVec.z = {
+	//	-sin(worldTransform_.rotation_.y) * frontVec.x +
+	//	cos(worldTransform_.rotation_.y) * frontVec.z
+	//};
+	
+	assert(player_);
+	
+	
+	
+	//弾を生成し、初期化
+	std::unique_ptr<EnemyBullet> newBullet = std::make_unique< EnemyBullet>();
+	newBullet->Initialize(model_, worldTransform_.translation_, resultVec);
+	//弾を登録する
+	bullets_.push_back(std::move(newBullet));
+
+	
+
+	//デスフラグの立った球を削除
+	bullets_.remove_if([](std::unique_ptr<EnemyBullet>& bullet) {
+		return bullet->IsDead();
+		});
+}
+
+
+
+Vector3 Enemy::GetWorldPosition()
+{
+	Vector3 worldPos;
+	worldPos = worldTransform_.translation_;
+	return worldPos;
 }
 
 void Enemy::Draw(const ViewProjection& viewProjection)
 {
 	//モデルの描画
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+
+	//弾描画
+	for (std::unique_ptr<EnemyBullet>& bullet : bullets_) {
+		bullet->Draw(viewProjection);
+	}
 
 	//デバッグ表示
 	debugText_->SetPos(50, 190);
@@ -55,10 +126,25 @@ void Enemy::phase_Approach()
 	speed = { 0,0,-0.3f };
 	//移動（ベクトルを加算）
 	worldTransform_.translation_ += speed;
+
+	//発射タイマーカウントダウン
+	shotCoolTime--;
+	//指定時間に達した
+	if (shotCoolTime <= 0) {
+		Shot();
+		//発射タイマーの初期化
+		shotCoolTime = kFireInterval;
+	}
+
 	//既定の位置に到達したら離脱
 	if (worldTransform_.translation_.z < 0.0f) {
 		phase_ = Phase::Leave;
 	}
+}
+
+void Enemy::phese_ApproachIni()
+{
+	shotCoolTime = kFireInterval;
 }
 
 void Enemy::phase_Leave()

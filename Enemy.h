@@ -1,20 +1,24 @@
 #pragma once
 #include "WorldTransform.h"
-#include "Matrix.h"
-#include <cassert>
-#include "Model.h"
-#include "Input.h"
-#include "Debugtext.h"
-#include "PlayerBullet.h"
-#include <memory>
-#include <list>
+#include "EnemyBullet.h"
+
+//自機クラスの前方宣言
+class Player;
+
 class Enemy
 {
 public:
+	
+	Enemy();
 	//初期化
 	void Initialize(Model* model, uint32_t textureHandle);
 	//更新
 	void Update();
+
+	void Shot();
+	Vector3 GetWorldPosition();
+
+	void SetPlayer(Player* player) { player_ = player; }
 	//描画
 	void Draw(const ViewProjection& viewProjection);
 
@@ -41,9 +45,18 @@ private:
 	Vector3 speed = { 0,0,-0.1f };
 
 	void phase_Approach();
+	void phese_ApproachIni();
 	void phase_Leave();
 
 	//メンバ関数ポインタのテーブル
 	static void (Enemy::* spFuncTable[])();
-	
+
+	//弾
+	std::list<std::unique_ptr<EnemyBullet>> bullets_;
+	//ShotTimer
+	static const int kFireInterval = 60;
+	int32_t shotCoolTime = 0;
+
+	Player* player_ = nullptr;
+
 };

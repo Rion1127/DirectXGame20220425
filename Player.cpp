@@ -35,6 +35,14 @@ void Player::Update()
 	matrix.UpdateMatrix(worldTransform_);
 }
 
+Vector3 Player::GetWorldPosition()
+{
+	Vector3 worldPos;
+	//ワールド行列の平行移動成分を取得
+	worldPos = worldTransform_.translation_;
+	return worldPos;
+}
+
 void Player::Draw(ViewProjection viewProjection_)
 {
 	//3Dモデルを描画
@@ -104,12 +112,12 @@ void Player::Rotation()
 		worldTransform_.rotation_.y += rotaSpeed;
 	}
 
-	if (input_->PushKey(DIK_UP)) {
+	/*if (input_->PushKey(DIK_UP)) {
 		worldTransform_.scale_.y += rotaSpeed;
 	}
 	else if (input_->PushKey(DIK_DOWN)) {
 		worldTransform_.scale_.y -= rotaSpeed;
-	}
+	}*/
 }
 
 void Player::Attack()

@@ -201,19 +201,19 @@ void GameScene::Update() {
 	Vector3 rayPos;
 	objPos = worldTransforms_.translation_;
 	rayPos = player_->worldTransform_.translation_;
+#pragma region レイの当たり判定
 	//レイの始点と終点を代入
 	Vector3 rayStart;
 	Vector3 rayEnd;
 	rayStart = {
 		player_->worldTransform_.translation_.x,
 		player_->worldTransform_.translation_.y,
-		player_->worldTransform_.translation_.z - 5.0f,
+		player_->worldTransform_.translation_.z - 8.0f,
 	};
-
 	rayEnd = {
 		player_->worldTransform_.translation_.x,
 		player_->worldTransform_.translation_.y,
-		player_->worldTransform_.translation_.z + 5.0f,
+		player_->worldTransform_.translation_.z + 8.0f,
 	};
 	//始点と終点からレイのベクトル(a→)を求める
 	Vector3 rayVec;
@@ -226,12 +226,13 @@ void GameScene::Update() {
 	// レイの始点とオブジェクトへのベクトル(b→)を求める
 	Vector3 ABVec;
 	ABVec = {
-		worldTransforms_.translation_.x - rayStart.x,
-		worldTransforms_.translation_.y - rayStart.y,
-		worldTransforms_.translation_.z - rayStart.z
+		objPos.x - rayStart.x,
+		objPos.y - rayStart.y,
+		objPos.z - rayStart.z
 	};
+
 	//b→・a→N をray2ObjLengthに格納
-	float ray2ObjectLength = rayVec.dot(ABVec);
+	float ray2ObjectLength = ABVec.dot(rayVec);
 
 	//Qを求める a→N * b→・a→N + P
 	Vector3 Q;
@@ -239,13 +240,13 @@ void GameScene::Update() {
 	Q = rayVec * ray2ObjectLength + rayStart;
 	//オブジェクトからレイの垂線(obj-Q)を求める
 	Vector3 line;
-	line = objPos - Q;
+	line = objPos - Q; 
 	//垂線の長さを求める
 	line.length();
 
 	//垂線の長さが半径+半径より短ければ当たってる
 	bool isHit = false;
-	if (line.length() <= 2) {
+	if (line.length() <= 5) {
 		if (raySize >= ray2ObjectLength) {
 			isHit = true;
 		}
@@ -255,31 +256,27 @@ void GameScene::Update() {
 		isHit = false;
 	}
 
+#pragma endregion
 
-
-
-
-
+	
 
 	//デバッグ表示
 	debugText_->SetPos(50, 50);
 	debugText_->Printf(
-		"rayStart:%f,%f,%f",
-		rayStart.x,
-		rayStart.y,
-		rayStart.z);
-	debugText_->SetPos(50, 70);
-	debugText_->Printf(
-		"rayEnd:%f,%f,%f",
-		rayEnd.x,
-		rayEnd.y,
-		rayEnd.z);
-	debugText_->SetPos(50, 90);
-	debugText_->Printf(
-		"rayVec:%f,%f,%f",
+		"VecA:%f,%f,%f",
 		rayVec.x,
 		rayVec.y,
 		rayVec.z);
+	debugText_->SetPos(50, 70);
+	debugText_->Printf(
+		"VecB:%f,%f,%f",
+		ABVec.x,
+		ABVec.y,
+		ABVec.z);
+	debugText_->SetPos(50, 90);
+	debugText_->Printf(
+		"a:%f",
+		ray2ObjectLength);
 	debugText_->SetPos(50, 110);
 	debugText_->Printf(
 		"ABVec:%f,%f,%f",

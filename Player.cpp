@@ -15,7 +15,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle)
 
 	worldTransform_.Initialize();
 
-	matrix.ScaleChange(worldTransform_, 0.1f, 0.1f, 5.0f, 1);
+	matrix.ScaleChange(worldTransform_, 0.1f, 0.1f, 7.0f, 1);
 	matrix.RotaChange(worldTransform_, 0, 0, 0);
 	matrix.ChangeTranslation(worldTransform_, -5, 0, 0);
 	matrix.UpdateMatrix(worldTransform_);
@@ -62,7 +62,11 @@ void Player::Move()
 	//キャラクターの移動ベクトル
 	Vector3 move = { 0,0,0 };
 	//キャラクターの移動速度
-	const float playerSpeed = 0.2f;
+	 float playerSpeed = 0.1f;
+
+	if (input_->PushKey(DIK_LSHIFT)) {
+		playerSpeed *= 0.1f;
+	}
 
 	//押した方向で移動ベクトルを変更
 	if (input_->PushKey(DIK_A)) {

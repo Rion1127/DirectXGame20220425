@@ -246,7 +246,7 @@ void GameScene::Update() {
 
 	//垂線の長さが半径+半径より短ければ当たってる
 	bool isHit = false;
-	if (line.length() <= 5) {
+	if (line.length() <= 1) {
 		if (raySize >= ray2ObjectLength) {
 			isHit = true;
 		}
